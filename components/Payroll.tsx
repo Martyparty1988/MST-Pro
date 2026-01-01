@@ -225,7 +225,8 @@ const Payroll: React.FC = () => {
                         {isAdmin ? 'Detailní rozpis plateb' : 'Moje statistiky'}
                     </h3>
                 </div>
-                <div className="overflow-x-auto">
+                {/* Desktop Table */}
+                <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-black/40">
@@ -301,6 +302,91 @@ const Payroll: React.FC = () => {
                             ))}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Mobile Cards View */}
+                <div className="md:hidden flex flex-col divide-y divide-white/5">
+                    {stats.map((s, idx) => (
+                        <div key={s.worker.id} className="p-6 space-y-6">
+                            {/* Header */}
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div
+                                        className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg"
+                                        style={{ backgroundColor: s.worker.color || 'var(--color-accent)' }}
+                                    >
+                                        {s.worker.name.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <p className="text-white font-black uppercase text-base">{s.worker.name}</p>
+                                        <p className="text-gray-500 text-[10px] font-bold tracking-widest mt-0.5">
+                                            {s.worker.hourlyRate}€/h • {s.worker.stringPrice}€/str
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-3xl font-black text-white tracking-tighter">{s.earnings} €</p>
+                                    <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Celkem</p>
+                                </div>
+                            </div>
+
+                            {/* Metrics Grid */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-4 bg-white/[0.03] rounded-2xl border border-white/5">
+                                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-wider mb-1">Hodiny</p>
+                                    <div className="flex items-baseline justify-between">
+                                        <span className="text-xl font-black text-white">{s.hours}</span>
+                                        <span className="text-[10px] font-bold text-slate-400">{s.hourlyEarnings} €</span>
+                                    </div>
+                                </div>
+                                <div className="p-4 bg-white/[0.03] rounded-2xl border border-white/5">
+                                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-wider mb-1">Stringy</p>
+                                    <div className="flex items-baseline justify-between">
+                                        <span className="text-xl font-black text-emerald-400">{s.strings}</span>
+                                        <span className="text-[10px] font-bold text-slate-400">{s.stringEarnings} €</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Detailed List items */}
+                            <div className="space-y-3 pt-2">
+                                {(Number(s.fixedTaskEarnings) > 0 || s.tables > 0) ? (
+                                    <>
+                                        {Number(s.fixedTaskEarnings) > 0 && (
+                                            <div className="flex items-center justify-between p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
+                                                    <span className="text-indigo-200 font-bold text-xs">{s.tasksCount} splněných úkolů</span>
+                                                </div>
+                                                <span className="text-white font-black text-sm">+{s.fixedTaskEarnings} €</span>
+                                            </div>
+                                        )}
+                                        {s.tables > 0 && (
+                                            <div className="flex items-center justify-between p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                                    <span className="text-emerald-200 font-bold text-xs">{s.tables} hotových stolů</span>
+                                                </div>
+                                                <span className="text-white font-black text-sm">Info</span>
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className="p-3 text-center text-[10px] font-bold text-slate-600 italic">
+                                        Žádné další bonusy ani stoly
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Efficiency Footer */}
+                            <div className="flex justify-between items-center pt-2 border-t border-white/5">
+                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Efektivita práce</span>
+                                <span className={`font-black text-sm ${Number(s.efficiency) > 15 ? 'text-emerald-400' : 'text-slate-400'}`}>
+                                    {isNaN(Number(s.efficiency)) ? '0.00' : s.efficiency} €/h
+                                </span>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
 

@@ -332,7 +332,9 @@ const Reports: React.FC = () => {
                                     <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{reportData.records.length} záznamů</span>
                                 </div>
                             </div>
-                            <div className="overflow-hidden rounded-[2rem] border border-white/5 bg-black/20">
+
+                            {/* Desktop Table */}
+                            <div className="hidden md:block overflow-hidden rounded-[2rem] border border-white/5 bg-black/20">
                                 <table className="w-full text-left border-collapse">
                                     <thead className="bg-white/[0.02]">
                                         <tr>
@@ -367,6 +369,29 @@ const Reports: React.FC = () => {
                                     </tbody>
                                 </table>
                             </div>
+
+                            {/* Mobile Records Cards */}
+                            <div className="md:hidden space-y-4">
+                                {reportData.records.map(record => (
+                                    <div key={record.id} className="bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 space-y-3">
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-xs font-black text-indigo-300 uppercase italic">
+                                                    {workerMap.get(record.workerId)?.name.substring(0, 2)}
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-black text-white italic uppercase">{workerMap.get(record.workerId)?.name}</p>
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{projectMap.get(record.projectId)?.name}</p>
+                                                </div>
+                                            </div>
+                                            <span className="text-lg font-black text-white italic tracking-tighter">{calculateDuration(record.startTime, record.endTime)}</span>
+                                        </div>
+                                        <div className="pt-3 border-t border-white/5">
+                                            <p className="text-xs text-slate-400 leading-relaxed">{record.description}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
                         {/* Tasks Table */}
@@ -377,7 +402,9 @@ const Reports: React.FC = () => {
                                     <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{reportData.tasks.length} položek</span>
                                 </div>
                             </div>
-                            <div className="overflow-hidden rounded-[2rem] border border-white/5 bg-black/20">
+
+                            {/* Desktop Table */}
+                            <div className="hidden md:block overflow-hidden rounded-[2rem] border border-white/5 bg-black/20">
                                 <table className="w-full text-left border-collapse">
                                     <thead className="bg-white/[0.02]">
                                         <tr>
@@ -413,6 +440,31 @@ const Reports: React.FC = () => {
                                         ))}
                                     </tbody>
                                 </table>
+                            </div>
+
+                            {/* Mobile Tasks Cards */}
+                            <div className="md:hidden space-y-4">
+                                {reportData.tasks.map(task => (
+                                    <div key={task.id} className="bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 space-y-3">
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-xs font-black text-purple-300 uppercase italic">
+                                                    {(task.assignedWorkerId ? workerMap.get(task.assignedWorkerId)?.name : '?')?.substring(0, 2)}
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-black text-white italic uppercase truncate max-w-[120px]">
+                                                        {task.assignedWorkerId ? workerMap.get(task.assignedWorkerId)?.name : t('unassigned')}
+                                                    </p>
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{projectMap.get(task.projectId)?.name}</p>
+                                                </div>
+                                            </div>
+                                            <span className="text-lg font-black text-white italic tracking-tighter">€{task.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                        </div>
+                                        <div className="pt-3 border-t border-white/5">
+                                            <p className="text-xs text-slate-400 leading-relaxed">{task.description}</p>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>

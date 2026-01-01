@@ -42,7 +42,7 @@ const ProjectFinder: React.FC = () => {
             setLocation(null);
         }
     }, [useLocation]);
-    
+
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!prompt.trim()) return;
@@ -52,16 +52,16 @@ const ProjectFinder: React.FC = () => {
         setResult(null);
 
         // Check if user has selected an API key if required
-        if (window.aistudio?.hasSelectedApiKey) {
-          const hasKey = await window.aistudio.hasSelectedApiKey();
-          if (!hasKey) {
-             setError("Prosím, nejprve si v nastavení připojte Gemini API klíč.");
-             setLoading(false);
-             return;
-          }
+        if ((window as any).aistudio?.hasSelectedApiKey) {
+            const hasKey = await (window as any).aistudio.hasSelectedApiKey();
+            if (!hasKey) {
+                setError("Prosím, nejprve si v nastavení připojte Gemini API klíč.");
+                setLoading(false);
+                return;
+            }
         }
 
-        if (!process.env.API_KEY) {
+        if (!import.meta.env.VITE_API_KEY) {
             setError("API key is not configured.");
             setLoading(false);
             return;
@@ -69,17 +69,19 @@ const ProjectFinder: React.FC = () => {
 
         try {
             // Per guidelines: Create a new GoogleGenAI instance right before making an API call
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            
+            const api_key = (window as any).aistudio?.apiKey || import.meta.env.VITE_API_KEY || '';
+            if (!api_key) throw new Error("API Key not found");
+            const ai = new GoogleGenAI({ apiKey: api_key });
+
             // 1. Prepare Full App Data Context
             const appData = {
                 projects: projects?.map(({ planFile, ...p }) => p) || [],
                 workers: workers || [],
-                tables: solarTables?.map(({x, y, ...t}) => t) || [],
+                tables: solarTables?.map(({ x, y, ...t }) => t) || [],
                 assignments: tableAssignments || [],
                 tasks: projectTasks || [],
                 attendance: dailyLogs || [],
-                recentActivity: records || [] 
+                recentActivity: records || []
             };
 
             const dataContextString = JSON.stringify(appData, null, 2);
@@ -109,7 +111,7 @@ const ProjectFinder: React.FC = () => {
             - Bold key insights.
             - If matching an internal project, clearly label it as **[INTERNAL PROJECT]**.
             `;
-            
+
             // Using gemini-2.5-flash-image for Maps grounding as per guidelines for 2.5 series
             const response = await ai.models.generateContent({
                 model: 'gemini-2.5-flash-image',
@@ -128,19 +130,19 @@ const ProjectFinder: React.FC = () => {
 
             const text = response.text;
             const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-            
+
             setResult({ text, chunks });
 
         } catch (err) {
             console.error("Gemini API call failed:", err);
             const msg = err instanceof Error ? err.message : "An unknown error occurred.";
             if (msg.includes("Requested entity was not found")) {
-               setError("API klíč nebyl nalezen nebo vypršel. Prosím vyberte ho znovu v nastavení.");
-               if (window.aistudio?.openSelectKey) {
-                 // Option to reset state if needed
-               }
+                setError("API klíč nebyl nalezen nebo vypršel. Prosím vyberte ho znovu v nastavení.");
+                if ((window as any).aistudio?.openSelectKey) {
+                    // Option to reset state if needed
+                }
             } else {
-               setError(msg);
+                setError(msg);
             }
         } finally {
             setLoading(false);
@@ -159,7 +161,7 @@ const ProjectFinder: React.FC = () => {
                 >
                     <div className="flex items-start gap-3">
                         <div className="p-2 bg-black/30 rounded-lg group-hover:bg-cyan-900/30 transition-colors">
-                             <MapIcon className="w-6 h-6 text-red-400 group-hover:text-cyan-400 transition-colors" />
+                            <MapIcon className="w-6 h-6 text-red-400 group-hover:text-cyan-400 transition-colors" />
                         </div>
                         <div>
                             <p className="font-bold text-gray-100 group-hover:text-cyan-300 transition-colors">{chunk.maps.title}</p>
@@ -168,13 +170,13 @@ const ProjectFinder: React.FC = () => {
                     </div>
                     {chunk.maps.placeAnswerSources?.reviewSnippets?.map((snippet: any, i: number) => (
                         <blockquote key={i} className="mt-3 pl-3 border-l-2 border-cyan-500/30 text-sm text-gray-400 italic">
-                           "{snippet.text}"
+                            "{snippet.text}"
                         </blockquote>
                     ))}
                 </a>
             );
         } else if (chunk.web) {
-             return (
+            return (
                 <a
                     key={index}
                     href={chunk.web.uri}
@@ -203,16 +205,16 @@ const ProjectFinder: React.FC = () => {
                         {location ? (
                             <>
                                 <span className="relative flex h-3 w-3">
-                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
                                 </span>
                                 Location Active
                             </>
                         ) : 'Location Inactive'}
                     </span>
-                    <input 
-                        type="checkbox" 
-                        checked={useLocation} 
+                    <input
+                        type="checkbox"
+                        checked={useLocation}
                         onChange={(e) => setUseLocation(e.target.checked)}
                         className="toggle toggle-success toggle-sm"
                     />
@@ -256,11 +258,11 @@ const ProjectFinder: React.FC = () => {
             {result && (
                 <div className="space-y-8 animate-fade-in">
                     <div className="p-8 bg-black/30 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl">
-                        <div 
+                        <div
                             className="prose prose-invert max-w-none text-gray-200 text-lg leading-relaxed whitespace-pre-wrap"
                             style={{ '--tw-prose-bold': 'var(--color-accent)', '--tw-prose-links': '#60a5fa' } as React.CSSProperties}
                         >
-                          {result.text}
+                            {result.text}
                         </div>
                     </div>
 

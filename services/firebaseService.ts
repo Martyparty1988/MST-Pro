@@ -25,15 +25,17 @@ import { getDatabase, ref, set, push, onValue, off, remove, goOnline, goOffline,
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getAuth, Auth } from 'firebase/auth';
 import { db } from './db'; // Import Dexie instance
+import { getAnalytics, Analytics } from "firebase/analytics";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyC0wgEBrqvx4Uge7upoSqZXFkSwXKb9hqE",
-    authDomain: "mst-marty-solar-2025.firebaseapp.com",
-    databaseURL: "https://mst-marty-solar-2025-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "mst-marty-solar-2025",
-    storageBucket: "mst-marty-solar-2025.firebasestorage.app",
-    messagingSenderId: "706935785372",
-    appId: "1:706935785372:web:0f21a739f8acbeb3e2ea59"
+    apiKey: "AIzaSyD5RkJAXUvuBAbuug9C1cU0PGNUMjbaGc8",
+    authDomain: "mst-ap.firebaseapp.com",
+    databaseURL: "https://mst-ap-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "mst-ap",
+    storageBucket: "mst-ap.firebasestorage.app",
+    messagingSenderId: "708181032604",
+    appId: "1:708181032604:web:4613ca54f8fd5c2805f759",
+    measurementId: "G-2W5047GKL9"
 };
 
 export interface SyncResult {
@@ -47,6 +49,7 @@ class FirebaseService {
     private db: Firestore;
     private rtdb: Database;
     private auth: Auth;
+    private analytics: Analytics | null = null;
     private messaging: Messaging | null = null;
     public currentFcmToken: string | null = null;
     public isInitialized = false;
@@ -57,6 +60,13 @@ class FirebaseService {
     constructor() {
         try {
             this.app = initializeApp(firebaseConfig);
+            if (typeof window !== 'undefined') {
+                try {
+                    this.analytics = getAnalytics(this.app);
+                } catch (e) {
+                    console.warn('Analytics failed to initialize', e);
+                }
+            }
             this.db = initializeFirestore(this.app, {
                 localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
             });

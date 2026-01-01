@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { GoogleGenAI } from '@google/genai';
-import { useI18n } from '../../contexts/I18nContext';
+import { useI18n } from '../contexts/I18nContext';
 
 // Helper function to convert a File object to a base64 string
 const fileToBase64 = (file: File): Promise<string> => {
@@ -101,7 +101,7 @@ const ImageEditor: React.FC = () => {
             setLoading(false);
         }
     };
-    
+
     // Drag and drop handler
     const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -160,7 +160,7 @@ const ImageEditor: React.FC = () => {
                 {/* Original Image */}
                 <div className="space-y-4">
                     <h2 className="text-3xl font-bold text-center text-white">{t('original_image')}</h2>
-                     <div 
+                    <div
                         className="relative aspect-square w-full bg-black/20 backdrop-blur-2xl rounded-3xl border-2 border-dashed border-white/20 shadow-lg flex items-center justify-center text-gray-400"
                         onDrop={handleDrop}
                         onDragOver={handleDragOver}
@@ -177,7 +177,7 @@ const ImageEditor: React.FC = () => {
                                     accept="image/png, image/jpeg, image/webp"
                                     onChange={handleImageChange}
                                 />
-                                 <label htmlFor="image-upload" className="mt-4 inline-block px-6 py-2 bg-[var(--color-primary)] text-white font-bold rounded-xl hover:bg-[var(--color-primary-hover)] transition-all shadow-md cursor-pointer">
+                                <label htmlFor="image-upload" className="mt-4 inline-block px-6 py-2 bg-[var(--color-primary)] text-white font-bold rounded-xl hover:bg-[var(--color-primary-hover)] transition-all shadow-md cursor-pointer">
                                     {t('upload_image')}
                                 </label>
                             </div>

@@ -75,11 +75,11 @@ const WorkerForm: React.FC<WorkerFormProps> = ({ worker, onClose }) => {
         if (isAssigned && !wasAssigned) {
           const newWorkerIds = [...(project.workerIds || []), finalId!];
           await db.projects.update(project.id!, { workerIds: newWorkerIds });
-          firebaseService.updateRecord('projects', project.id!, { workerIds: newWorkerIds });
+          firebaseService.updateRecord('projects', String(project.id!), { workerIds: newWorkerIds });
         } else if (!isAssigned && wasAssigned) {
           const newWorkerIds = project.workerIds?.filter(id => id !== finalId!);
           await db.projects.update(project.id!, { workerIds: newWorkerIds });
-          firebaseService.updateRecord('projects', project.id!, { workerIds: newWorkerIds });
+          firebaseService.updateRecord('projects', String(project.id!), { workerIds: newWorkerIds });
         }
       }
     }

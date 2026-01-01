@@ -121,7 +121,7 @@ const ToolManager: React.FC = () => {
                     await logAction(finalId, action, `Změna stavu z ${oldTool.status} na ${status}`);
                 }
             } else {
-                finalId = await db.tools.add(toolData);
+                finalId = (await db.tools.add(toolData)) as number;
                 await logAction(finalId, 'return', 'Prvotní naskladnění');
             }
 
@@ -269,9 +269,9 @@ const ToolManager: React.FC = () => {
                                 <div className="flex flex-col items-end gap-2">
                                     {tool.category === 'asset' ? (
                                         <span className={`px-3 py-1 rounded-xl text-[8px] font-black uppercase tracking-widest ${tool.status === 'available' ? 'bg-emerald-500/20 text-emerald-400' :
-                                                tool.status === 'borrowed' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-rose-500/20 text-rose-400'
+                                            tool.status === 'borrowed' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-rose-500/20 text-rose-400'
                                             }`}>
-                                            {t(`tool_status_${tool.status}`)}
+                                            {t(`tool_status_${tool.status}` as any)}
                                         </span>
                                     ) : (
                                         <span className={`px-3 py-1 rounded-xl text-[8px] font-black uppercase tracking-widest ${(tool.quantity || 0) < 5 ? 'bg-rose-500 text-white animate-pulse' : 'bg-black/40 text-slate-400'
@@ -354,7 +354,7 @@ const ToolManager: React.FC = () => {
                                         <div className={`absolute top-0 -left-1.5 w-3 h-3 rounded-full border-2 border-[#0a0c1a] ${log.action === 'borrow' ? 'bg-indigo-500' : log.action === 'return' ? 'bg-emerald-500' : 'bg-rose-500'
                                             }`} />
                                         <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{new Date(log.timestamp).toLocaleString('cs-CZ')}</p>
-                                        <h4 className="font-black text-sm uppercase tracking-tight mt-1">{t(`tool_action_${log.action}`)}</h4>
+                                        <h4 className="font-black text-sm uppercase tracking-tight mt-1">{t(`tool_action_${log.action}` as any)}</h4>
                                         <p className="text-xs font-bold text-slate-300">{log.workerId > 0 ? getWorkerName(log.workerId) : 'Systém'}</p>
                                         {log.notes && <p className="text-[10px] italic text-slate-500 mt-1 opacity-70">"{log.notes}"</p>}
                                     </div>

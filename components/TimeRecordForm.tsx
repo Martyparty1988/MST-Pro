@@ -356,7 +356,7 @@ const TimeRecordForm: React.FC<WorkLogFormProps> = ({ onClose, editRecord, initi
                 await db.records.update(editRecord.id, recordData);
                 finalId = editRecord.id;
             } else {
-                finalId = await db.records.add(recordData as TimeRecord);
+                finalId = (await db.records.add(recordData as TimeRecord)) as number;
             }
 
             // Sync with Firebase

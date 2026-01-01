@@ -9,21 +9,21 @@ import CheckCircleIcon from './icons/CheckCircleIcon';
 import UploadIcon from './icons/UploadIcon';
 
 interface SchemaConfig {
-  type: string;
-  required: boolean;
-  description: string;
+    type: string;
+    required: boolean;
+    description: string;
 }
 
 const DESTINATION_SCHEMAS: Record<'workers' | 'projects', Record<string, SchemaConfig>> = {
-  workers: {
-    name: { type: 'string', required: true, description: 'Worker full name' },
-    hourlyRate: { type: 'number', required: true, description: 'Worker hourly pay rate in Euro' },
-  },
-  projects: {
-    name: { type: 'string', required: true, description: 'Unique project name' },
-    description: { type: 'string', required: false, description: 'Detailed project info' },
-    status: { type: "'active' | 'completed' | 'on_hold'", required: true, description: 'Current project state' },
-  },
+    workers: {
+        name: { type: 'string', required: true, description: 'Worker full name' },
+        hourlyRate: { type: 'number', required: true, description: 'Worker hourly pay rate in Euro' },
+    },
+    projects: {
+        name: { type: 'string', required: true, description: 'Unique project name' },
+        description: { type: 'string', required: false, description: 'Detailed project info' },
+        status: { type: "'active' | 'completed' | 'on_hold'", required: true, description: 'Current project state' },
+    },
 };
 
 type DestinationType = keyof typeof DESTINATION_SCHEMAS;
@@ -56,10 +56,10 @@ const DataImporter: React.FC = () => {
         setLoadingMessage('');
         setImportResult(null);
     };
-    
+
     const handleFile = async (selectedFile: File) => {
         setFile(selectedFile);
-        
+
         setIsLoading(true);
         const extension = selectedFile.name.split('.').pop()?.toLowerCase();
 
@@ -86,12 +86,12 @@ const DataImporter: React.FC = () => {
                     const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
                     const [headerRow, ...dataRows] = json as any[][];
                     setHeaders(headerRow.map(h => String(h)));
-                    setRawData(dataRows.map(row => headerRow.reduce((obj, h, i) => ({...obj, [h]: row[i]}), {})));
+                    setRawData(dataRows.map(row => headerRow.reduce((obj, h, i) => ({ ...obj, [h]: row[i] }), {})));
                     setStep(2);
                 };
                 reader.readAsArrayBuffer(selectedFile);
             } else if (selectedFile.type === 'application/json' || extension === 'json') {
-                 setLoadingMessage('Parsing JSON...');
+                setLoadingMessage('Parsing JSON...');
                 const text = await selectedFile.text();
                 const data = JSON.parse(text);
                 if (Array.isArray(data) && data.length > 0) {
@@ -113,7 +113,7 @@ const DataImporter: React.FC = () => {
     const requiredFields = (Object.entries(DESTINATION_SCHEMAS[destination]) as [string, SchemaConfig][])
         .filter(([_, config]) => config.required)
         .map(([key]) => key);
-    
+
     const mappedDestinationFields = Object.values(mappings);
     const missingFields = requiredFields.filter(f => !mappedDestinationFields.includes(f));
 
@@ -121,25 +121,25 @@ const DataImporter: React.FC = () => {
         if (step !== 3) return [];
         return rawData.slice(0, 5).map(row => {
             const newRow: { [key: string]: any } = {};
-            for(const destField of destinationFields) {
+            for (const destField of destinationFields) {
                 const sourceHeader = Object.keys(mappings).find(h => mappings[h] === destField);
                 newRow[destField] = sourceHeader ? row[sourceHeader] : null;
             }
             return newRow;
         });
     }, [step, rawData, mappings, destinationFields]);
-    
+
     const handleImport = async () => {
         setStep(4);
         setIsLoading(true);
-        
+
         let newCount = 0, updatedCount = 0, skippedCount = 0;
         const table = db[destination];
 
         for (const row of rawData) {
             const newRecord: { [key: string]: any } = {};
             let uniqueIdentifier: string | null = null;
-            
+
             for (const header in mappings) {
                 const destField = mappings[header];
                 if (destField) {
@@ -151,10 +151,10 @@ const DataImporter: React.FC = () => {
                 }
             }
 
-            if(destination === 'workers') {
+            if (destination === 'workers') {
                 newRecord.createdAt = new Date();
                 // Basic login generation for imported workers
-                if(newRecord.name) {
+                if (newRecord.name) {
                     newRecord.username = String(newRecord.name).toLowerCase().replace(/\s/g, '');
                 }
             }
@@ -166,7 +166,7 @@ const DataImporter: React.FC = () => {
             }
 
             const existing = await table.where('name').equalsIgnoreCase(uniqueIdentifier).first();
-            
+
             if (existing) {
                 if (duplicateHandling === 'skip') {
                     skippedCount++;
@@ -180,7 +180,7 @@ const DataImporter: React.FC = () => {
                 newCount++;
             }
         }
-        
+
         setImportResult({ new: newCount, updated: updatedCount, skipped: skippedCount, warnings: [] });
         setIsLoading(false);
     };
@@ -196,7 +196,7 @@ const DataImporter: React.FC = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <h1 className="text-5xl font-bold text-white [text-shadow:0_4px_12px_rgba(0,0,0,0.5)]">{t('import_data_title')}</h1>
                 <div className="flex bg-black/20 p-1 rounded-2xl border border-white/10 backdrop-blur-xl shrink-0">
-                    <button 
+                    <button
                         onClick={() => { setMethod('file'); resetState(); }}
                         className={`px-4 py-2 rounded-xl text-sm font-black uppercase transition-all flex items-center gap-2 ${method === 'file' ? 'bg-[var(--color-primary)] text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
                     >
@@ -208,7 +208,7 @@ const DataImporter: React.FC = () => {
 
             <div className="p-8 bg-black/20 backdrop-blur-2xl rounded-[3rem] border border-white/10 shadow-2xl min-h-[60vh] relative overflow-hidden">
                 {isLoading && <div className="absolute inset-0 bg-black/60 backdrop-blur-md z-50 flex flex-col items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div><p className="text-white text-xl font-black uppercase tracking-widest">{loadingMessage}</p></div>}
-                
+
                 {step === 1 && (
                     <div className="animate-fade-in space-y-8">
                         <div className="flex flex-col md:flex-row gap-8 items-end">
@@ -222,7 +222,7 @@ const DataImporter: React.FC = () => {
                         </div>
 
                         {method === 'file' && (
-                             <div 
+                            <div
                                 onDrop={handleDrop} onDragOver={e => { e.preventDefault(); setIsDragOver(true); }} onDragLeave={() => setIsDragOver(false)}
                                 className={`flex flex-col justify-center items-center h-80 border-4 border-dashed rounded-[2rem] cursor-pointer transition-all duration-300 ${isDragOver ? 'border-[var(--color-accent)] bg-[var(--color-accent)]/10 scale-102' : 'border-white/10 hover:border-white/30 hover:bg-white/5'}`}
                                 onClick={() => document.getElementById('file-upload-importer')?.click()}
@@ -235,7 +235,7 @@ const DataImporter: React.FC = () => {
                         )}
                     </div>
                 )}
-                
+
                 {step === 2 && (
                     <div className="animate-fade-in">
                         <div className="flex justify-between items-center mb-8">
@@ -263,9 +263,9 @@ const DataImporter: React.FC = () => {
                             {headers.map(header => (
                                 <div key={header} className="p-4 bg-white/5 rounded-2xl border border-white/5 flex flex-col gap-2 hover:border-[var(--color-accent)]/30 transition-colors">
                                     <span className="font-black text-gray-400 text-xs uppercase tracking-widest truncate">{header}</span>
-                                    <select 
-                                        value={mappings[header] || ''} 
-                                        onChange={e => setMappings({...mappings, [header]: e.target.value})} 
+                                    <select
+                                        value={mappings[header] || ''}
+                                        onChange={e => setMappings({ ...mappings, [header]: e.target.value })}
                                         className="w-full p-3 bg-black/40 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-[var(--color-accent)] outline-none font-bold text-sm [&>option]:bg-gray-800"
                                     >
                                         <option value="">{t('unmapped')}</option>
@@ -277,8 +277,8 @@ const DataImporter: React.FC = () => {
 
                         <div className="flex justify-between mt-10 pt-6 border-t border-white/10">
                             <button onClick={() => resetState()} className="px-8 py-4 bg-white/5 text-white font-black rounded-2xl hover:bg-white/10 transition-colors uppercase tracking-widest">{t('back_step')}</button>
-                            <button 
-                                onClick={() => setStep(3)} 
+                            <button
+                                onClick={() => setStep(3)}
                                 disabled={missingFields.length > 0}
                                 className="px-10 py-4 bg-[var(--color-primary)] text-white font-black rounded-2xl hover:bg-[var(--color-primary-hover)] transition-all shadow-xl uppercase tracking-widest disabled:opacity-30 disabled:grayscale"
                             >
@@ -287,9 +287,9 @@ const DataImporter: React.FC = () => {
                         </div>
                     </div>
                 )}
-                
+
                 {step === 3 && (
-                     <div className="animate-fade-in">
+                    <div className="animate-fade-in">
                         <h2 className="text-3xl font-black mb-8 text-white uppercase tracking-tighter">{t('step_3_preview_title')}</h2>
                         <div className="overflow-x-auto bg-black/30 rounded-3xl border border-white/10 mb-8 shadow-inner custom-scrollbar">
                             <table className="min-w-full divide-y divide-white/10">
@@ -313,11 +313,11 @@ const DataImporter: React.FC = () => {
                         </div>
 
                         <div className="bg-white/5 p-6 rounded-3xl border border-white/10 mb-8">
-                             <label className="block text-sm font-black text-gray-400 uppercase mb-4 tracking-widest">{t('duplicates_handling')}</label>
-                             <div className="flex gap-4">
+                            <label className="block text-sm font-black text-gray-400 uppercase mb-4 tracking-widest">{t('duplicates_handling')}</label>
+                            <div className="flex gap-4">
                                 <button onClick={() => setDuplicateHandling('skip')} className={`flex-1 p-4 rounded-2xl font-black transition-all border-2 ${duplicateHandling === 'skip' ? 'bg-indigo-600 border-white text-white shadow-lg' : 'bg-black/20 border-white/10 text-gray-500'}`}>{t('skip_duplicates').toUpperCase()}</button>
                                 <button onClick={() => setDuplicateHandling('merge')} className={`flex-1 p-4 rounded-2xl font-black transition-all border-2 ${duplicateHandling === 'merge' ? 'bg-indigo-600 border-white text-white shadow-lg' : 'bg-black/20 border-white/10 text-gray-500'}`}>{t('merge_on_name').toUpperCase()}</button>
-                             </div>
+                            </div>
                         </div>
 
                         <div className="flex justify-between">
@@ -335,11 +335,11 @@ const DataImporter: React.FC = () => {
                         <h2 className="text-5xl font-black mb-10 text-white uppercase tracking-tighter">{t('import_summary')}</h2>
                         <div className="space-y-4 w-full max-w-md bg-black/40 p-8 rounded-[2.5rem] border border-white/10 shadow-2xl">
                             <div className="flex justify-between items-center border-b border-white/5 pb-4">
-                                <span className="text-gray-400 font-bold uppercase text-sm tracking-widest">Nové záznamy</span>
+                                <span className="text-gray-400 font-bold uppercase text-sm tracking-widest">{t('new_records')}</span>
                                 <span className="text-4xl text-green-400 font-black">+{importResult.new}</span>
                             </div>
                             <div className="flex justify-between items-center pt-2">
-                                <span className="text-gray-400 font-bold uppercase text-sm tracking-widest">Přeskočeno</span>
+                                <span className="text-gray-400 font-bold uppercase text-sm tracking-widest">{t('skipped_records')}</span>
                                 <span className="text-2xl text-gray-500 font-black">{importResult.skipped}</span>
                             </div>
                         </div>

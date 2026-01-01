@@ -6,9 +6,10 @@ const SyncStatusIndicator: React.FC = () => {
     const [status, setStatus] = useState({ online: firebaseService.isOnline, pending: firebaseService.pendingOps });
 
     useEffect(() => {
-        return firebaseService.onStatusChange((online, pending) => {
+        const unsubscribe = firebaseService.onStatusChange((online, pending) => {
             setStatus({ online, pending });
         });
+        return () => { unsubscribe(); };
     }, []);
 
     return (

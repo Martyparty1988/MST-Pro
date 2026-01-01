@@ -16,7 +16,7 @@ import CalendarIcon from './icons/CalendarIcon';
 import BrainIcon from './icons/BrainIcon';
 import NotificationBell from './NotificationBell';
 
-const Sidebar: React.FC = () => {
+const Sidebar: React.FC<{ className?: string; onClose?: () => void }> = ({ className = '', onClose }) => {
     const { t } = useI18n();
     const { user, logout } = useAuth();
 
@@ -40,10 +40,20 @@ const Sidebar: React.FC = () => {
     const getVisibleItems = (items: any[]) => items.filter(item => item.roles.includes(user?.role || 'user'));
 
     return (
-        <aside className="hidden md:flex flex-col w-72 bg-[#020617]/95 backdrop-blur-3xl text-white fixed h-full border-r border-white/5 shadow-[20px_0_40px_rgba(0,0,0,0.5)] z-[100]">
-            <div className="flex flex-col items-center justify-center py-10 border-b border-white/5 relative overflow-hidden">
+        <aside className={`flex flex-col w-72 bg-[#020617]/95 backdrop-blur-3xl text-white fixed h-full border-r border-white/5 shadow-[20px_0_40px_rgba(0,0,0,0.5)] z-[100] transition-transform duration-300 ${className}`}>
+            {/* Mobile Close Button */}
+            {onClose && (
+                <button
+                    onClick={onClose}
+                    className="md:hidden absolute top-6 right-6 p-2 text-slate-400 hover:text-white bg-white/5 rounded-full"
+                >
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            )}
+
+            <div className="flex flex-col items-center justify-center py-10 border-b border-white/5 relative overflow-hidden shrink-0">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-indigo-500/20 blur-3xl rounded-full"></div>
-                <Link to="/" className="relative z-10 group">
+                <Link to="/" className="relative z-10 group" onClick={onClose}>
                     <h1 className="text-4xl font-black italic tracking-tighter text-white group-hover:scale-110 transition-transform duration-300">
                         MST<span className="text-indigo-500">.</span>
                     </h1>
@@ -59,6 +69,7 @@ const Sidebar: React.FC = () => {
                             <NavLink
                                 key={item.to}
                                 to={item.to}
+                                onClick={onClose}
                                 end={item.to === "/"}
                                 className={({ isActive }) =>
                                     `group flex items-center px-4 py-3 text-sm font-black uppercase tracking-tight rounded-2xl transition-all duration-300 ${isActive
@@ -83,6 +94,7 @@ const Sidebar: React.FC = () => {
                                 <NavLink
                                     key={item.to}
                                     to={item.to}
+                                    onClick={onClose}
                                     className={({ isActive }) =>
                                         `group flex items-center px-4 py-3 text-sm font-black uppercase tracking-tight rounded-2xl transition-all duration-300 ${isActive
                                             ? 'bg-gradient-to-r from-emerald-600/20 to-emerald-600/10 text-white border border-emerald-500/30'

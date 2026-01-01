@@ -67,6 +67,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const location = useLocation();
     const isChat = location.pathname === '/chat';
     const [showQuickLog, setShowQuickLog] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -83,13 +84,34 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
     return (
         <div className="w-full h-full flex bg-transparent overflow-hidden h-screen-safe">
-            <Sidebar />
+            {/* Desktop Sidebar - Hidden on mobile */}
+            <Sidebar className="hidden md:flex" />
+
+            {/* Mobile Sidebar Overlay */}
+            <div
+                className={`fixed inset-0 z-[200] md:hidden transition-all duration-300 ${isSidebarOpen ? 'bg-black/80 backdrop-blur-sm visible opacity-100' : 'invisible opacity-0 pointer-events-none'}`}
+                onClick={() => setIsSidebarOpen(false)}
+            >
+                <div
+                    className={`absolute inset-y-0 left-0 w-72 transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                    onClick={e => e.stopPropagation()}
+                >
+                    <Sidebar className="w-full h-full shadow-2xl" onClose={() => setIsSidebarOpen(false)} />
+                </div>
+            </div>
 
             <div className="flex-1 flex flex-col overflow-hidden md:ml-64 relative">
                 {/* Header - Only for Mobile */}
                 <header className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#020617]/90 backdrop-blur-3xl border-b border-white/5 pt-safe shadow-xl">
                     <div className="flex justify-between items-center h-16 px-6 safe-x">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-4">
+                            {/* Hamburger Menu Trigger */}
+                            <button
+                                onClick={() => setIsSidebarOpen(true)}
+                                className="p-2 -ml-2 text-slate-400 hover:text-white active:scale-95 transition-all"
+                            >
+                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                            </button>
                             <span className="text-xl font-black italic tracking-tighter text-white">MST<span className="text-indigo-500">.</span></span>
                         </div>
                         <div className="flex items-center gap-4">

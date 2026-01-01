@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useBackup } from '../contexts/BackupContext';
 import { useToast } from '../contexts/ToastContext';
 import { db } from '../services/db';
-import { googleDriveService } from '../services/googleDriveService';
+
 import { firebaseService } from '../services/firebaseService';
 import TrashIcon from './icons/TrashIcon';
 import ConfirmationModal from './ConfirmationModal';

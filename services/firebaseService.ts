@@ -246,6 +246,7 @@ class FirebaseService {
                 tools: db.tools,
                 fieldTables: db.fieldTables,
                 dailyReports: db.dailyReports,
+                dailyLogs: db.dailyLogs,
                 records: db.records,
                 projectTasks: db.projectTasks
             };

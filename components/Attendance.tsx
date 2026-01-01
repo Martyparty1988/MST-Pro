@@ -3,6 +3,8 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../services/db';
 import { useI18n } from '../contexts/I18nContext';
+import { firebaseService } from '../services/firebaseService';
+
 import { useAuth } from '../contexts/AuthContext';
 import type { Worker, DailyLog, AttendanceStatus } from '../types';
 import CalendarIcon from './icons/CalendarIcon';
@@ -41,10 +43,17 @@ const Attendance: React.FC = () => {
             notes: newNotes ?? existingLog?.notes ?? '',
         };
 
+        let logId = existingLog?.id;
         if (existingLog) {
             await db.dailyLogs.update(existingLog.id!, logData);
         } else {
-            await db.dailyLogs.add(logData);
+            logId = await db.dailyLogs.add(logData) as number;
+        }
+
+        // Sync to Firebase
+        if (firebaseService.isReady) {
+            firebaseService.upsertRecords('dailyLogs', [{ ...logData, id: logId }])
+                .catch(console.error);
         }
     }, [selectedDate, logsMap]);
 

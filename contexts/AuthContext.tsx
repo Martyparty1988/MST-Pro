@@ -44,7 +44,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         let worker = await db.workers.where('username').equals(email?.split('@')[0] || '').first();
 
         // Explicit Admin Overrides
-        if (email === 'mullerpve@gmail.com' || (!worker && (email === 'admin@mst.app' || email?.startsWith('admin')))) {
+        if (email === 'mullerpve@gmail.com' || email === 'mullerpvev@gmail.com' || (!worker && (email === 'admin@mst.app' || email?.startsWith('admin')))) {
           const adminUser: User = {
             username: worker?.name || 'Admin',
             role: 'admin',

@@ -24,6 +24,9 @@ const Settings: React.FC = () => {
     const { createBackup, importBackup } = useBackup();
     const { showToast } = useToast();
     const [isResetting, setIsResetting] = useState(false);
+    
+    // ✅ OPRAVA: Bezpečná kontrola Notification API
+    const notificationPermission = typeof Notification !== 'undefined' ? notificationPermission : 'denied';
 
     const handleClearAll = async () => {
         await db.transaction('rw', db.tables, async () => {
@@ -93,8 +96,8 @@ const Settings: React.FC = () => {
                         <div className="flex items-center justify-between flex-wrap gap-6">
                             <div className="space-y-2">
                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Aktuální stav</p>
-                                <h3 className={`text-2xl font-black italic tracking-tighter uppercase ${Notification.permission === 'granted' ? 'text-emerald-500' : 'text-slate-400'}`}>
-                                    {Notification.permission === 'granted' ? 'Aktivní' : Notification.permission === 'denied' ? 'Zakázáno' : 'Čeká se'}
+                                <h3 className={`text-2xl font-black italic tracking-tighter uppercase ${notificationPermission === 'granted' ? 'text-emerald-500' : 'text-slate-400'}`}>
+                                    {notificationPermission === 'granted' ? 'Aktivní' : notificationPermission === 'denied' ? 'Zakázáno' : 'Čeká se'}
                                 </h3>
                             </div>
 

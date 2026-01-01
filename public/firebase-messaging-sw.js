@@ -1,18 +1,17 @@
-
 // Scripts for firebase and firebase messaging
-importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js');
 
 // Initialize the Firebase app in the service worker by passing in the
 // messagingSenderId.
 firebase.initializeApp({
-    apiKey: "AIzaSyC0wgEBrqvx4Uge7upoSqZXFkSwXKb9hqE",
-    authDomain: "mst-marty-solar-2025.firebaseapp.com",
-    databaseURL: "https://mst-marty-solar-2025-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "mst-marty-solar-2025",
-    storageBucket: "mst-marty-solar-2025.firebasestorage.app",
-    messagingSenderId: "706935785372",
-    appId: "1:706935785372:web:0f21a739f8acbeb3e2ea59",
+    apiKey: "AIzaSyD5RkJAXUvuBAbuug9C1cU0PGNUMjbaGc8",
+    authDomain: "mst-ap.firebaseapp.com",
+    databaseURL: "https://mst-ap-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "mst-ap",
+    storageBucket: "mst-ap.firebasestorage.app",
+    messagingSenderId: "708181032604",
+    appId: "1:708181032604:web:4613ca54f8fd5c2805f759",
 });
 
 // Retrieve an instance of Firebase Messaging so that it can handle background
@@ -25,7 +24,8 @@ messaging.onBackgroundMessage((payload) => {
     const notificationTitle = payload.notification.title;
     const notificationOptions = {
         body: payload.notification.body,
-        icon: payload.notification.icon || '/icon-192.svg'
+        icon: payload.notification.icon || '/icon-192.svg',
+        badge: '/icon-192.svg' // Add badge
     };
 
     self.registration.showNotification(notificationTitle, notificationOptions);

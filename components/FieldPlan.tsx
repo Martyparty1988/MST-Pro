@@ -194,7 +194,7 @@ const FieldPlan: React.FC<{ projectId: number, onTableClick?: (table: FieldTable
             setViewMode('list');
             setShowLeftSidebar(false);
         }
-    }, []);
+    }, [projectId]); // Add projectId dependency to reset on project change
 
     // Zoom/Pan State
     const [zoom, setZoom] = useState(1);
@@ -319,8 +319,18 @@ const FieldPlan: React.FC<{ projectId: number, onTableClick?: (table: FieldTable
         <div className="relative w-full h-[85vh] min-h-[700px] flex overflow-hidden bg-[#020617] font-sans rounded-[3rem] border border-white/5 shadow-[0_0_100px_rgba(0,0,0,0.5)]">
 
             {/* Left Sidebar - Statistics & Filters */}
-            <aside className={`transition-all duration-500 h-full border-r border-white/5 bg-black/20 backdrop-blur-3xl shrink-0 flex flex-col ${showLeftSidebar ? 'w-96' : 'w-0 overflow-hidden'}`}>
-                <div className="p-8 grow space-y-10 custom-scrollbar overflow-y-auto">
+            {/* Mobile Backdrop */}
+            <div
+                className={`md:hidden absolute inset-0 bg-black/80 z-40 transition-opacity duration-300 ${showLeftSidebar ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                onClick={() => setShowLeftSidebar(false)}
+            />
+
+            <aside className={`
+                transition-all duration-500 h-full border-r border-white/5 bg-[#0a0c1a] md:bg-black/20 backdrop-blur-3xl shrink-0 flex flex-col z-50
+                absolute md:relative left-0 top-0
+                ${showLeftSidebar ? 'w-80 md:w-96 translate-x-0' : 'w-80 md:w-0 -translate-x-full md:translate-x-0 overflow-hidden md:border-r-0'}
+            `}>
+                <div className={`p-8 grow space-y-10 custom-scrollbar overflow-y-auto ${!showLeftSidebar && 'md:opacity-0 pointer-events-none'} transition-opacity duration-300`}>
                     <header className="space-y-4">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-600/30">
@@ -481,12 +491,13 @@ const FieldPlan: React.FC<{ projectId: number, onTableClick?: (table: FieldTable
                     </div>
                 )}
 
-                {/* Left Sidebar Toggle */}
+                {/* Sidebar Toggle Button */}
                 <button
                     onClick={() => setShowLeftSidebar(!showLeftSidebar)}
-                    className="absolute left-6 top-8 w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-2xl z-50"
+                    className={`absolute z-50 w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-2xl transition-all duration-500 ${showLeftSidebar ? 'left-[17rem] md:left-6 rotate-180' : 'left-6 top-8'}`}
+                    style={{ top: showLeftSidebar ? '2rem' : '2rem' }}
                 >
-                    <svg className={`w-6 h-6 transition-transform ${showLeftSidebar ? '' : 'rotate-180'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M11 19l-7-7 7-7" /></svg>
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M11 19l-7-7 7-7" /></svg>
                 </button>
             </main>
         </div>

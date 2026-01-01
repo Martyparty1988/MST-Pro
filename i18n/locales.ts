@@ -93,6 +93,7 @@ export const locales = {
     custom_range: 'Custom Range',
     export_payroll: 'Export Payroll',
     export_payroll_desc: 'Download monthly summary CSV',
+    table: 'Table',
 
     // Workers
     workers: 'Workers',
@@ -774,5 +775,6 @@ export const locales = {
     work_type_hourly: 'Hodinová',
     work_type_task: 'Úkolová',
     next: 'Další',
+    table: 'Stůl',
   }
 };

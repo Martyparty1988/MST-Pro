@@ -18,6 +18,7 @@ export interface Project {
   location?: string; // New
   description?: string;
   status: 'active' | 'completed' | 'on_hold';
+  color?: string; // New: Hex color for UI branding
   tables?: { id: string; type?: 'S' | 'M' | 'L' }[];
   planFile?: File;
   googleSpreadsheetId?: string;

@@ -571,7 +571,7 @@ const TimeRecordForm: React.FC<WorkLogFormProps> = ({ onClose, editRecord, initi
                                     <div className="relative z-10 text-right">
                                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Odměna cca</p>
                                         <p className="text-2xl font-black text-emerald-400 italic tracking-tighter">
-                                            {Math.round(calculatedStrings * (worker.stringPrice || 0))} <span className="text-sm text-emerald-600/50">Kč</span>
+                                            {Math.round(calculatedStrings * (worker.stringPrice || 0))} <span className="text-sm text-emerald-600/50">€</span>
                                         </p>
                                     </div>
                                 )}

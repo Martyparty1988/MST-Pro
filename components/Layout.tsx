@@ -9,8 +9,7 @@ import SettingsIcon from './icons/SettingsIcon';
 import ClockIcon from './icons/ClockIcon';
 import ChatIcon from './icons/ChatIcon';
 import ConnectionStatusIndicator from './ConnectionStatusIndicator';
-import FloatingActionMenu from './FloatingActionMenu';
-import Sidebar from './Sidebar'; // Import the Sidebar
+import Sidebar from './Sidebar';
 import TimeRecordForm from './TimeRecordForm';
 import NotificationBell from './NotificationBell';
 import { useState, useEffect } from 'react';
@@ -18,7 +17,6 @@ import { useState, useEffect } from 'react';
 const BottomNavBar: React.FC = () => {
     const { t } = useI18n();
     const { user } = useAuth();
-    const location = useLocation();
 
     const navItems = [
         { to: "/", title: t('dashboard'), icon: <DashboardIcon className="w-8 h-8" />, roles: ['admin', 'user'] },
@@ -32,27 +30,27 @@ const BottomNavBar: React.FC = () => {
 
     return (
         <nav
-            className="fixed bottom-0 left-0 z-[100] w-full bg-[#020617]/90 backdrop-blur-2xl border-t border-white/10 md:hidden shadow-[0_-10px_40px_rgba(0,0,0,0.5)] transition-all pb-safe"
-            style={{ paddingBottom: 'env(safe-area-inset-bottom, 20px)' }}
+            className="fixed bottom-0 left-0 z-[100] w-full bg-[#020617]/95 backdrop-blur-3xl border-t border-white/5 md:hidden shadow-[0_-15px_50px_rgba(0,0,0,0.8)] pb-safe"
         >
-            <div className="flex justify-around items-center px-4 py-4">
+            <div className="flex justify-around items-center px-2 py-3 safe-x">
                 {visibleItems.map(item => (
                     <NavLink
                         key={item.to}
                         to={item.to}
                         className={({ isActive }) =>
-                            `group flex flex-col items-center justify-center w-full gap-1.5 transition-all duration-300 touch-manipulation min-h-[64px] rounded-2xl ${isActive
+                            `group flex flex-col items-center justify-center w-full gap-1 transition-all duration-300 touch-manipulation min-h-[64px] rounded-2xl ${isActive
                                 ? 'text-white'
-                                : 'text-slate-500 hover:text-slate-300'
-                            }`
+                                : 'text-slate-500'}`
                         }
                     >
                         {({ isActive }) => (
                             <>
-                                <div className={`relative p-3 rounded-2xl transition-all duration-300 ${isActive ? 'bg-indigo-600 shadow-[0_0_20px_rgba(79,70,229,0.4)] scale-110 -translate-y-2 border border-white/20' : 'bg-transparent scale-100'}`}>
-                                    {isActive ? React.cloneElement(item.icon as React.ReactElement<{ className?: string }>, { className: "w-6 h-6 text-white" }) : React.cloneElement(item.icon as React.ReactElement<{ className?: string }>, { className: "w-6 h-6 text-slate-500" })}
+                                <div className={`relative p-3 rounded-2xl transition-all duration-500 ${isActive ? 'bg-indigo-600 shadow-lg scale-110 -translate-y-1 border border-white/20' : 'bg-transparent'}`}>
+                                    {React.cloneElement(item.icon as React.ReactElement<{ className?: string }>, {
+                                        className: `w-6 h-6 transition-colors ${isActive ? "text-white" : "text-slate-500"}`
+                                    })}
                                 </div>
-                                <span className={`text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${isActive ? 'opacity-100 text-indigo-400 translate-y-0' : 'opacity-0 translate-y-2 hidden'}`}>
+                                <span className={`text-[8px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${isActive ? 'opacity-100 text-indigo-400' : 'opacity-0 h-0 hidden'}`}>
                                     {item.title}
                                 </span>
                             </>
@@ -65,17 +63,14 @@ const BottomNavBar: React.FC = () => {
 };
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { user } = useAuth();
     const { t } = useI18n();
     const location = useLocation();
     const [showQuickLog, setShowQuickLog] = useState(false);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            // Check if active element is input/textarea to avoid triggering while typing
             const target = e.target as HTMLElement;
             if (['input', 'textarea'].includes(target.tagName.toLowerCase())) return;
-
             if (e.key.toLowerCase() === 'z') {
                 e.preventDefault();
                 setShowQuickLog(true);
@@ -86,28 +81,18 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     }, []);
 
     return (
-        <div className="w-full h-[100dvh] flex bg-transparent overflow-hidden">
-            {/* Sidebar for desktop */}
+        <div className="w-full h-full flex bg-transparent overflow-hidden h-screen-safe">
             <Sidebar />
 
-            <div className="flex-1 flex flex-col overflow-hidden md:ml-64">
-                {/* Header - Only for Mobile, as Sidebar has its own */}
-                <header
-                    className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#1a1d37]/80 backdrop-blur-md border-b border-white/5 shadow-sm"
-                    style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
-                >
-                    <div
-                        className="flex justify-between items-center h-16 px-6"
-                        style={{
-                            paddingLeft: 'calc(1.5rem + env(safe-area-inset-left, 0px))',
-                            paddingRight: 'calc(1.5rem + env(safe-area-inset-right, 0px))'
-                        }}
-                    >
+            <div className="flex-1 flex flex-col overflow-hidden md:ml-64 relative">
+                {/* Header - Only for Mobile */}
+                <header className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#020617]/90 backdrop-blur-3xl border-b border-white/5 pt-safe shadow-xl">
+                    <div className="flex justify-between items-center h-16 px-6 safe-x">
                         <div className="flex items-center gap-3">
-                            <span className="text-xl font-black italic tracking-tighter text-white">MST<span className="text-[var(--color-accent)]">.</span></span>
+                            <span className="text-xl font-black italic tracking-tighter text-white">MST<span className="text-indigo-500">.</span></span>
                         </div>
                         <div className="flex items-center gap-4">
-                            <NotificationBell className="w-6 h-6" />
+                            <NotificationBell className="w-10 h-10 -mr-2" />
                             <ConnectionStatusIndicator />
                         </div>
                     </div>
@@ -115,15 +100,13 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
                 {/* Main Content Area */}
                 <main
-                    className="flex-1 overflow-y-auto custom-scrollbar p-6 overscroll-contain"
+                    className="flex-1 overflow-y-auto custom-scrollbar overscroll-contain"
                     style={{
-                        paddingTop: 'calc(4.5rem + env(safe-area-inset-top, 0px))',
-                        paddingBottom: 'calc(7.5rem + env(safe-area-inset-bottom, 0px))',
-                        paddingLeft: 'calc(1.5rem + env(safe-area-inset-left, 0px))',
-                        paddingRight: 'calc(1.5rem + env(safe-area-inset-right, 0px))'
+                        paddingTop: 'calc(var(--header-height) + var(--safe-top) + 1rem)',
+                        paddingBottom: 'calc(var(--nav-height) + var(--safe-bottom) + 2rem)',
                     }}
                 >
-                    <div key={location.pathname} className="max-w-7xl mx-auto w-full h-full">
+                    <div key={location.pathname} className="max-w-7xl mx-auto w-full px-4 md:px-8 safe-x animate-fade-in">
                         {children}
                     </div>
                 </main>
@@ -131,25 +114,27 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 {/* Bottom Nav for mobile */}
                 <BottomNavBar />
 
-
-            </div>
-
-            {/* Global FAB - Log Work */}
-            <div className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom,20px))] right-4 z-40 md:bottom-10 md:right-10 animate-slide-in-right">
-                <button
-                    onClick={() => setShowQuickLog(true)}
-                    className="w-16 h-16 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-full shadow-[0_10px_30px_rgba(79,70,229,0.5)] flex items-center justify-center text-white active:scale-90 transition-transform hover:scale-110 border border-white/20"
-                    title="Zapsat práci (Z)"
+                {/* Global FAB - Log Work */}
+                <div
+                    className="fixed z-40 md:bottom-10 md:right-10"
+                    style={{
+                        bottom: 'calc(var(--nav-height) + var(--safe-bottom) + 20px)',
+                        right: 'max(16px, var(--safe-right))'
+                    }}
                 >
-                    <ClockIcon className="w-8 h-8 drop-shadow-md" />
-                </button>
+                    <button
+                        onClick={() => setShowQuickLog(true)}
+                        className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-blue-700 rounded-full shadow-[0_15px_40px_rgba(0,0,0,0.5)] flex items-center justify-center text-white active:scale-95 transition-all hover:scale-105 border border-white/20"
+                        title="Zapsat práci (Z)"
+                    >
+                        <ClockIcon className="w-8 h-8 drop-shadow-lg" />
+                    </button>
+                </div>
             </div>
 
             {/* Global Quick Log Modal */}
             {showQuickLog && (
-                <TimeRecordForm
-                    onClose={() => setShowQuickLog(false)}
-                />
+                <TimeRecordForm onClose={() => setShowQuickLog(false)} />
             )}
         </div>
     );

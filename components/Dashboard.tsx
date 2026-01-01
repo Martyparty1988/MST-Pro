@@ -64,7 +64,7 @@ const Dashboard: React.FC = () => {
 
   const handleDataRefresh = async () => {
     try {
-      await firebaseService.synchronize();
+      await firebaseService.synchronize(true);
       showToast('Data byla obnovena', 'success');
     } catch (error) {
       console.error("Failed to refresh data:", error);
@@ -150,7 +150,10 @@ const Dashboard: React.FC = () => {
     <div className="space-y-12 pb-32 animate-in fade-in slide-in-from-bottom-5 duration-700 relative">
 
       {/* Pull to refresh UI */}
-      <div className={`fixed top-24 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${isRefreshing ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-10 scale-90 pointer-events-none'}`}>
+      <div
+        className={`fixed left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${isRefreshing ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-10 scale-90 pointer-events-none'}`}
+        style={{ top: 'calc(var(--safe-top, 0px) + 1.5rem)' }}
+      >
         <div className="bg-indigo-600/90 backdrop-blur-xl text-white rounded-full p-4 shadow-[0_10px_40px_rgba(79,70,229,0.4)] border border-indigo-400/20">
           <RedoIcon className="w-6 h-6 animate-spin" />
         </div>
@@ -368,23 +371,7 @@ const Dashboard: React.FC = () => {
 
       {/* Work Entry Modal */}
       {isLoggingWork && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-slate-950/60 backdrop-blur-xl animate-fade-in"
-            onClick={() => setIsLoggingWork(false)}
-          ></div>
-          <div className="w-full max-w-lg bg-[#0f172a] rounded-[2.5rem] border border-white/10 shadow-[0_30px_100px_rgba(0,0,0,0.8)] overflow-hidden max-h-[90vh] flex flex-col relative animate-slide-up z-10">
-            <div className="p-6 border-b border-white/5 flex justify-between items-center">
-              <h2 className="text-xl font-black text-white italic uppercase tracking-tight">Zapsat Práci</h2>
-              <button onClick={() => setIsLoggingWork(false)} className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-white transition-colors">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
-            </div>
-            <div className="overflow-y-auto custom-scrollbar flex-1 p-6">
-              <TimeRecordForm onClose={() => setIsLoggingWork(false)} />
-            </div>
-          </div>
-        </div>
+        <TimeRecordForm onClose={() => setIsLoggingWork(false)} />
       )}
     </div>
   );

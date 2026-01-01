@@ -35,7 +35,7 @@ const Projects: React.FC = () => {
 
     const handleDataRefresh = useCallback(async () => {
         try {
-            await firebaseService.syncAll();
+            await firebaseService.synchronize(true); // Full sync on pull
             showToast('Data byla obnovena', 'success');
         } catch (error) {
             console.error("Failed to refresh data:", error);
@@ -88,20 +88,23 @@ const Projects: React.FC = () => {
 
     return (
         <div className="space-y-12 pb-32">
-            <div className={`fixed top-16 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${isRefreshing ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10 pointer-events-none'}`}>
-                <div className="bg-indigo-600 text-white rounded-full p-2 shadow-lg">
+            <div
+                className={`fixed left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${isRefreshing ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10 pointer-events-none'}`}
+                style={{ top: 'calc(var(--safe-top, 0px) + 1.5rem)' }}
+            >
+                <div className="bg-indigo-600 text-white rounded-full p-2 shadow-lg ring-4 ring-indigo-500/20">
                     <RedoIcon className="w-5 h-5 animate-spin" />
                 </div>
             </div>
 
-            <header className="space-y-12">
+            <header className="space-y-8 md:space-y-12">
                 <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-10">
                     <div className="space-y-6 max-w-3xl">
                         <div className="space-y-2">
-                            <h1 className="text-8xl md:text-9xl font-black text-white tracking-tighter uppercase italic leading-[0.7]">
+                            <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-white tracking-tighter uppercase italic leading-[0.8]">
                                 {t('projects')}<span className="text-indigo-500 not-italic">.</span>
                             </h1>
-                            <div className="h-2 w-48 bg-indigo-600 rounded-full shadow-[0_4px_20px_rgba(79,70,229,0.5)]" />
+                            <div className="h-2 w-32 md:w-48 bg-indigo-600 rounded-full shadow-[0_4px_20px_rgba(79,70,229,0.5)]" />
                         </div>
                         <p className="text-2xl text-slate-400 font-bold tracking-tight pl-2 border-l-4 border-white/5 py-2">
                             Správa a monitoring solárních parků s maximální efektivitou.

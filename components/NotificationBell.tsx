@@ -37,9 +37,9 @@ const NotificationBell: React.FC<{ className?: string }> = ({ className = "w-6 h
         return (
             <button
                 onClick={() => navigate('/chat')}
-                className={`relative p-2 text-slate-500 hover:text-white transition-colors ${className}`}
+                className={`relative p-3 text-slate-500 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${className}`}
             >
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
             </button>
@@ -49,19 +49,19 @@ const NotificationBell: React.FC<{ className?: string }> = ({ className = "w-6 h
     return (
         <button
             onClick={() => navigate('/chat')}
-            className={`relative p-2 group transition-all active:scale-95 ${className}`}
+            className={`relative p-3 group transition-all active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center ${className}`}
         >
-            <div className="absolute -top-1 -right-1 z-10 w-5 h-5 bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-lg border-2 border-[#1a1d37] group-hover:scale-125 transition-transform animate-bounce">
+            <div className="absolute top-1 right-1 z-10 w-5 h-5 bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-lg border-2 border-[#1a1d37] group-hover:scale-125 transition-transform animate-bounce">
                 {unreadCount}
             </div>
 
-            <svg className="w-full h-full text-indigo-400 group-hover:text-white transition-colors animate-swing" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+            <svg className="w-6 h-6 text-indigo-400 group-hover:text-white transition-colors animate-swing" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             </svg>
 
             {/* Subtle popover hint on desktop */}
             {lastUnread && (
-                <div className="hidden md:block absolute top-14 right-0 w-64 p-4 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all pointer-events-none text-left">
+                <div key="unread-hint" className="hidden md:block absolute top-14 right-0 w-64 p-4 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all pointer-events-none text-left">
                     <p className="text-[8px] font-black text-indigo-400 uppercase tracking-widest mb-1">Nová zpráva od {lastUnread.senderName}</p>
                     <p className="text-xs text-white font-bold truncate opacity-90">{lastUnread.text}</p>
                 </div>

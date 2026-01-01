@@ -202,10 +202,16 @@ const Chat: React.FC = () => {
         const groups: { date: string, items: { senderId: number, name: string, messages: ChatMessage[] }[] }[] = [];
         messages.forEach((msg) => {
             const dateObj = new Date(msg.timestamp);
-            const dateStr = dateObj.toLocaleDateString(language === 'cs' ? 'cs-CZ' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' });
-            let dateLabel = dateStr;
-            if (dateStr === new Date().toLocaleDateString(language === 'cs' ? 'cs-CZ' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })) dateLabel = t('today');
-
+            let dateLabel = '';
+            if (isNaN(dateObj.getTime())) {
+                dateLabel = t('today');
+            } else {
+                const dateStr = dateObj.toLocaleDateString(language === 'cs' ? 'cs-CZ' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+                dateLabel = dateStr;
+                if (dateStr === new Date().toLocaleDateString(language === 'cs' ? 'cs-CZ' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })) {
+                    dateLabel = t('today');
+                }
+            }
             let dateGroup = groups.find(g => g.date === dateLabel);
             if (!dateGroup) {
                 dateGroup = { date: dateLabel, items: [] };
@@ -231,67 +237,107 @@ const Chat: React.FC = () => {
         return projects?.find(p => `project_${p.id}` === activeChannelId)?.name || 'Project';
     }, [activeChannelId, projects, workers, t, currentUser]);
 
+    // Active Channel Avatar/Color
+    const activeChannelColor = useMemo(() => {
+        if (activeChannelId === 'general') return '#6366f1';
+        if (activeChannelId.startsWith('dm_')) {
+            const parts = activeChannelId.split('_');
+            const otherId = parts[1] === String(currentUser?.workerId || -1) ? parts[2] : parts[1];
+            return workers?.find(w => String(w.id) === otherId)?.color || '#3b82f6';
+        }
+        return projects?.find(p => `project_${p.id}` === activeChannelId)?.color || '#3b82f6';
+    }, [activeChannelId, projects, workers, currentUser]);
+
     return (
-        <div className="fixed inset-x-0 top-16 bottom-16 md:bottom-0 md:static flex flex-col md:flex-row h-full max-w-7xl mx-auto overflow-hidden bg-[#0a0c1a]">
+        <div
+            className="fixed md:static inset-0 flex flex-col md:flex-row max-w-7xl mx-auto overflow-hidden bg-[#0a0c1a] z-40"
+            style={{
+                top: 'calc(var(--header-height, 64px) + var(--safe-top, 0px))',
+                bottom: 'calc(var(--nav-height, 72px) + var(--safe-bottom, 0px))',
+                paddingLeft: 'var(--safe-left, 0px)',
+                paddingRight: 'var(--safe-right, 0px)'
+            }}
+        >
             {/* Sidebar (List View) */}
-            <div className={`w-full md:w-80 flex-col shrink-0 h-full border-r border-white/5 bg-black/20 backdrop-blur-2xl ${mobileView === 'list' ? 'flex' : 'hidden md:flex'}`}>
-                <div className="p-8 border-b border-white/5">
-                    <h1 className="text-3xl font-black text-white italic tracking-tighter uppercase relative">
-                        {t('channels')}
-                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_10px_currentColor]"></span>
-                    </h1>
+            <div className={`w-full md:w-96 flex-col shrink-0 h-full border-r border-white/5 bg-black/40 backdrop-blur-3xl transition-all duration-500 ${mobileView === 'list' ? 'flex' : 'hidden md:flex'}`}>
+                <div className="p-8 pb-4 border-b border-white/5 space-y-6">
+                    <div className="flex items-center justify-between">
+                        <h1 className="text-4xl font-black text-white italic tracking-tighter uppercase relative group">
+                            {t('channels')}
+                            <span className="absolute -bottom-1 left-0 w-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 group-hover:w-full transition-all duration-500"></span>
+                        </h1>
+                        <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center text-slate-500 hover:text-white transition-all cursor-pointer">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        </div>
+                    </div>
                 </div>
-                <div className="flex-1 overflow-y-auto px-4 py-6 space-y-1 custom-scrollbar">
+
+                <div className="flex-1 overflow-y-auto px-6 py-6 space-y-3 custom-scrollbar">
+                    {/* General Channel Card */}
                     <button
                         onClick={() => handleChannelSelect('general')}
-                        className={`w-full p-4 rounded-[1.5rem] flex items-center gap-4 transition-all duration-300 group ${activeChannelId === 'general' ? 'bg-indigo-600 shadow-[0_10px_20px_-5px_rgba(79,70,229,0.3)]' : 'hover:bg-white/5'}`}
+                        className={`w-full p-5 rounded-[2rem] flex items-center gap-5 transition-all duration-500 group relative overflow-hidden ${activeChannelId === 'general' ? 'bg-indigo-600 shadow-[0_20px_40px_-10px_rgba(79,70,229,0.4)]' : 'bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-white/10'}`}
                     >
-                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg transition-colors ${activeChannelId === 'general' ? 'bg-white text-indigo-600' : 'bg-white/5 text-slate-500 group-hover:bg-white/10 group-hover:text-white'}`}>#</div>
-                        <div className="text-left flex-1 min-w-0">
-                            <div className="flex justify-between items-center">
-                                <span className={`block text-[8px] font-black uppercase tracking-[0.2em] mb-0.5 ${activeChannelId === 'general' ? 'text-indigo-200' : 'text-slate-600'}`}>Public</span>
+                        {activeChannelId === 'general' && (
+                            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/50 to-purple-500/50 mix-blend-overlay"></div>
+                        )}
+                        <div className={`w-14 h-14 rounded-[1.5rem] flex items-center justify-center font-black text-2xl transition-all duration-500 ${activeChannelId === 'general' ? 'bg-white text-indigo-600 rotate-12' : 'bg-white/5 text-slate-500 group-hover:text-white group-hover:scale-110'}`}>#</div>
+                        <div className="text-left flex-1 min-w-0 relative z-10">
+                            <div className="flex justify-between items-center mb-1">
+                                <span className={`block text-[9px] font-black uppercase tracking-[0.3em] ${activeChannelId === 'general' ? 'text-indigo-200' : 'text-slate-600'}`}>Hlášení</span>
                                 {unreads['general'] && activeChannelId !== 'general' && (
-                                    <div className="w-2 h-2 bg-rose-500 rounded-full shadow-[0_0_8px_rgba(244,63,94,0.6)] animate-pulse" />
+                                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-500 border border-rose-500/20">
+                                        <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse"></div>
+                                        <span className="text-[8px] font-black tracking-widest leading-none">NEW</span>
+                                    </div>
                                 )}
                             </div>
-                            <span className={`font-bold text-sm ${activeChannelId === 'general' ? 'text-white' : 'text-slate-400 group-hover:text-white'}`}>{t('general')}</span>
+                            <span className={`font-black text-lg italic tracking-tight transition-colors ${activeChannelId === 'general' ? 'text-white' : 'text-slate-300 group-hover:text-white'}`}>{t('general')}</span>
                         </div>
                     </button>
 
-                    <div className="pt-8 pb-3 px-4 text-[9px] font-black text-slate-500 uppercase tracking-[0.25em] opacity-60">Projekty</div>
+                    <div className="pt-10 pb-4 px-2 flex items-center gap-3">
+                        <span className="text-[10px] font-black text-indigo-500/60 uppercase tracking-[0.4em]">Projekty</span>
+                        <div className="h-px flex-1 bg-gradient-to-r from-indigo-500/20 to-transparent"></div>
+                    </div>
+
                     {projects.map(p => (
                         <button
                             key={p.id}
                             onClick={() => handleChannelSelect(`project_${p.id}`)}
-                            className={`w-full p-3 rounded-[1.5rem] flex items-center gap-3 transition-all duration-300 group ${activeChannelId === `project_${p.id}` ? 'bg-indigo-600' : 'hover:bg-white/5'}`}
+                            className={`w-full p-4 rounded-[1.75rem] flex items-center gap-4 transition-all duration-300 group ${activeChannelId === `project_${p.id}` ? 'bg-indigo-600 shadow-xl' : 'hover:bg-white/[0.05] border border-transparent hover:border-white/5'}`}
                         >
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs transition-colors ${activeChannelId === `project_${p.id}` ? 'bg-white text-indigo-600' : 'bg-white/5 text-slate-500 group-hover:text-white'}`}>P</div>
-                            <div className={`text-left font-bold truncate text-sm flex-1 ${activeChannelId === `project_${p.id}` ? 'text-white' : 'text-slate-400 group-hover:text-white'}`}>{p.name}</div>
+                            <div className={`w-11 h-11 rounded-[1.2rem] flex items-center justify-center font-black text-sm transition-all ${activeChannelId === `project_${p.id}` ? 'bg-white text-indigo-600' : 'bg-white/5 text-slate-500 group-hover:text-white'}`}>P</div>
+                            <div className={`text-left font-black truncate text-sm flex-1 transition-colors italic tracking-tight ${activeChannelId === `project_${p.id}` ? 'text-white' : 'text-slate-400 group-hover:text-white'}`}>{p.name}</div>
                             {unreads[`project_${p.id}`] && activeChannelId !== `project_${p.id}` && (
-                                <div className="w-2 h-2 bg-rose-500 rounded-full animate-pulse mr-2" />
+                                <div className="w-2.5 h-2.5 bg-rose-500 rounded-full animate-pulse mr-2 shadow-[0_0_10px_rgba(244,63,94,0.6)]" />
                             )}
                         </button>
                     ))}
 
-                    <div className="pt-8 pb-3 px-4 text-[9px] font-black text-slate-500 uppercase tracking-[0.25em] opacity-60">Kolegové</div>
+                    <div className="pt-10 pb-4 px-2 flex items-center gap-3">
+                        <span className="text-[10px] font-black text-emerald-500/60 uppercase tracking-[0.4em]">Kolegové</span>
+                        <div className="h-px flex-1 bg-gradient-to-r from-emerald-500/20 to-transparent"></div>
+                    </div>
+
                     {workers?.filter(w => w.id !== currentUser?.workerId).map(w => {
                         const dmId = `dm_${[currentUser?.workerId || -1, w.id].sort((a, b) => Number(a) - Number(b)).join('_')}`;
                         return (
                             <button
                                 key={w.id}
                                 onClick={() => handleChannelSelect(dmId)}
-                                className={`w-full p-3 rounded-[1.5rem] flex items-center gap-3 transition-all duration-300 group ${activeChannelId === dmId ? 'bg-indigo-600' : 'hover:bg-white/5'}`}
+                                className={`w-full p-4 rounded-[1.75rem] flex items-center gap-4 transition-all duration-300 group ${activeChannelId === dmId ? 'bg-indigo-600 shadow-xl' : 'hover:bg-white/[0.05] border border-transparent hover:border-white/5'}`}
                             >
                                 <div
-                                    className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-[10px] bg-cover bg-center shadow-inner relative overflow-hidden`}
+                                    className={`w-11 h-11 rounded-[1.2rem] flex items-center justify-center font-black text-[11px] shadow-lg relative overflow-hidden group-hover:scale-105 transition-transform`}
                                     style={{ backgroundColor: w.color || '#334155' }}
                                 >
-                                    <div className="absolute inset-0 bg-black/10" />
-                                    <span className="relative z-10 text-white drop-shadow-md">{w.name.substring(0, 2).toUpperCase()}</span>
+                                    <div className="absolute inset-0 bg-white/10" />
+                                    <span className="relative z-10 text-white drop-shadow-md">{(w.name || '??').substring(0, 2).toUpperCase()}</span>
                                 </div>
-                                <div className={`text-left font-bold truncate text-sm flex-1 transition-colors ${activeChannelId === dmId ? 'text-white' : 'text-slate-400 group-hover:text-white'}`}>{w.name}</div>
+                                <div className={`text-left font-black truncate text-sm flex-1 transition-colors tracking-tight ${activeChannelId === dmId ? 'text-white' : 'text-slate-400 group-hover:text-white'}`}>{w.name}</div>
                                 {unreads[dmId] && activeChannelId !== dmId && (
-                                    <div className="w-4 h-4 rounded-full bg-rose-500 text-[8px] font-black text-white flex items-center justify-center animate-bounce mr-2">1</div>
+                                    <div className="flex items-center justify-center w-6 h-6 rounded-xl bg-rose-500 text-[10px] font-black text-white animate-bounce mr-2 shadow-lg">1</div>
                                 )}
                             </button>
                         );
@@ -305,33 +351,42 @@ const Chat: React.FC = () => {
                 <div className="absolute -top-[20%] -right-[20%] w-[80%] h-[80%] bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none" />
 
                 {/* Header */}
-                <div className="relative z-10 px-6 py-5 border-b border-white/5 bg-black/20 backdrop-blur-xl flex items-center gap-6 shrink-0 shadow-lg">
+                <div className="relative z-10 px-8 py-7 border-b border-white/5 bg-black/40 backdrop-blur-2xl flex items-center gap-6 shrink-0 shadow-2xl">
                     <button
                         onClick={handleBackToList}
-                        className="md:hidden p-3 -ml-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-2xl transition-all active:scale-95"
+                        className="md:hidden p-4 -ml-4 text-slate-400 hover:text-white hover:bg-white/5 rounded-[1.5rem] transition-all active:scale-95 group"
                     >
-                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <svg className="w-6 h-6 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                         </svg>
                     </button>
-                    <div className="flex-1 overflow-hidden">
-                        <h2 className="text-2xl font-black text-white italic uppercase tracking-tighter truncate leading-none mb-1">{activeProjectName}</h2>
-                        <div className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgb(16,185,129)]"></span>
-                            <span className="text-[9px] font-black text-indigo-300 uppercase tracking-[0.2em]">{t('active_now') || 'ONLINE'}</span>
+                    <div className="flex-1 overflow-hidden flex items-center gap-4">
+                        <div className={`hidden sm:flex w-12 h-12 rounded-2xl items-center justify-center font-black text-white text-lg shadow-lg border border-white/10`} style={{ backgroundColor: activeChannelColor }}>
+                            {activeProjectName.substring(0, 1).toUpperCase()}
+                        </div>
+                        <div className="truncate">
+                            <h2 className="text-3xl font-black text-white italic uppercase tracking-tighter truncate leading-none mb-1.5">{activeProjectName}</h2>
+                            <div className="flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgb(16,185,129)]"></span>
+                                <span className="text-[10px] font-black text-indigo-300 uppercase tracking-[0.3em]">{t('active_now') || 'ONLINE'}</span>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Notification Enable Button */}
-                    {Notification.permission !== 'granted' && (
-                        <button
-                            onClick={() => currentUser?.workerId && firebaseService.requestNotificationPermission(currentUser.workerId)}
-                            className="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-2xl hover:scale-105 transition-all shadow-lg"
-                            title="Zapnout notifikace"
-                        >
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                    <div className="flex items-center gap-3">
+                        {Notification.permission !== 'granted' && (
+                            <button
+                                onClick={() => currentUser?.workerId && firebaseService.requestNotificationPermission(currentUser.workerId)}
+                                className="bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-white p-4 rounded-2xl hover:scale-105 transition-all shadow-xl group/notif flex items-center justify-center border border-indigo-500/20"
+                                title="Zapnout notifikace"
+                            >
+                                <svg className="w-5 h-5 group-hover/notif:animate-swing" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                            </button>
+                        )}
+                        <button className="hidden sm:flex p-4 text-slate-500 hover:text-white bg-white/5 hover:bg-white/10 rounded-2xl transition-all active:scale-95">
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
                         </button>
-                    )}
+                    </div>
                 </div>
 
                 {/* Messages Container */}
@@ -352,77 +407,89 @@ const Chat: React.FC = () => {
                                 {group.items.map((item, idx) => {
                                     const senderMe = isMe({ senderId: item.senderId } as any);
                                     return (
-                                        <div key={idx} className={`flex gap-4 ${senderMe ? 'flex-row-reverse' : 'flex-row'} animate-slide-up group/msg max-w-4xl ${senderMe ? 'ml-auto' : 'mr-auto'}`}>
+                                        <div key={idx} className={`flex gap-4 ${senderMe ? 'flex-row-reverse' : 'flex-row'} animate-slide-up group/msg max-w-[90%] md:max-w-4xl ${senderMe ? 'ml-auto' : 'mr-auto'}`}>
                                             <div
-                                                className="w-10 h-10 rounded-[1rem] flex items-center justify-center text-[10px] font-black text-white shrink-0 shadow-lg border-2 border-white/5 bg-cover bg-center"
+                                                className="w-11 h-11 rounded-2xl flex items-center justify-center text-[10px] font-black text-white shrink-0 shadow-xl border border-white/10 group-hover:scale-110 transition-transform relative overflow-hidden"
                                                 style={{ backgroundColor: workers?.find(w => w.id === item.senderId)?.color || '#3b82f6' }}
                                             >
-                                                {item.name.substring(0, 2).toUpperCase()}
+                                                <div className="absolute inset-0 bg-black/10"></div>
+                                                <span className="relative z-10">{(item.name || '??').substring(0, 2).toUpperCase()}</span>
                                             </div>
-                                            <div className={`flex flex-col space-y-1 ${senderMe ? 'items-end' : 'items-start'} flex-1 min-w-0`}>
-                                                {!senderMe && <span className="text-[9px] font-black text-slate-400 uppercase px-1 tracking-wider opacity-0 group-hover/msg:opacity-100 transition-opacity">{item.name}</span>}
+                                            <div className={`flex flex-col space-y-1.5 ${senderMe ? 'items-end' : 'items-start'} flex-1 min-w-0`}>
+                                                {!senderMe && (
+                                                    <span className="text-[10px] font-black text-slate-500 uppercase px-1 tracking-[0.2em] mb-1">
+                                                        {item.name}
+                                                    </span>
+                                                )}
                                                 {item.messages.map((msg, msgIdx) => (
                                                     <div
                                                         key={msg.id}
-                                                        className={`relative transition-all group/bubble ${msg.isSystem ? 'w-full flex justify-center py-4' : ''}`}
+                                                        className={`relative transition-all group/bubble ${msg.isSystem ? 'w-full flex justify-center py-6' : ''}`}
                                                     >
                                                         {msg.isSystem ? (
-                                                            <div className="bg-indigo-500/10 border border-indigo-500/20 px-6 py-3 rounded-full flex items-center gap-3 max-w-[90%] backdrop-blur-sm shadow-xl animate-fade-in">
-                                                                <span className="text-lg">📢</span>
-                                                                <span className="text-xs font-bold text-indigo-300 uppercase tracking-wide text-center leading-relaxed">
+                                                            <div className="bg-white/[0.03] border border-white/5 px-8 py-4 rounded-[2rem] flex items-center gap-4 max-w-[90%] backdrop-blur-xl shadow-2xl animate-fade-in group-hover:bg-white/[0.05] transition-all">
+                                                                <div className="p-2 bg-indigo-500/20 rounded-xl text-indigo-400">
+                                                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                                                                </div>
+                                                                <span className="text-sm font-bold text-slate-300 italic">
                                                                     {msg.text}
                                                                 </span>
                                                             </div>
                                                         ) : (
-                                                            <div className="relative">
-                                                                {/* Reaction Toolbar (appearing on hover/context) */}
-                                                                <div className={`absolute -top-10 z-[100] flex gap-2 p-2 bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl opacity-0 scale-90 pointer-events-none group-hover/bubble:opacity-100 group-hover/bubble:scale-100 group-hover/bubble:pointer-events-auto transition-all ${senderMe ? 'right-0' : 'left-0'}`}>
+                                                            <div className="relative group/content">
+                                                                {/* Reaction Toolbar */}
+                                                                <div className={`absolute -top-12 z-[100] flex gap-1 p-1 bg-black/80 backdrop-blur-2xl border border-white/10 rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] opacity-0 scale-90 pointer-events-none group-hover/bubble:opacity-100 group-hover/bubble:scale-100 group-hover/bubble:pointer-events-auto transition-all duration-300 ${senderMe ? 'right-0' : 'left-0'}`}>
                                                                     {['👍', '❤️', '🔥', '👏', '😂', '😮'].map(emoji => (
                                                                         <button
                                                                             key={emoji}
                                                                             onClick={() => handleToggleReaction(msg.id, emoji)}
-                                                                            className="w-8 h-8 flex items-center justify-center hover:scale-125 transition-transform text-lg"
+                                                                            className="w-10 h-10 flex items-center justify-center hover:scale-125 transition-all text-xl active:scale-90"
                                                                         >
                                                                             {emoji}
                                                                         </button>
                                                                     ))}
-                                                                    <div className="w-px h-6 bg-white/10 mx-1"></div>
+                                                                    <div className="w-px h-6 bg-white/10 mx-2 self-center"></div>
                                                                     <button
                                                                         onClick={() => setReplyToMessage(msg)}
-                                                                        className="px-3 text-[10px] font-black text-indigo-400 uppercase tracking-widest hover:text-white transition-colors"
+                                                                        className="px-5 text-[10px] font-black text-white uppercase tracking-widest hover:text-indigo-400 transition-colors flex items-center"
                                                                     >
                                                                         Odpovědět
                                                                     </button>
                                                                 </div>
 
                                                                 <div
-                                                                    className={`px-6 py-4 rounded-[1.5rem] text-sm leading-relaxed shadow-lg backdrop-blur-sm transition-all hover:scale-[1.01] relative ${senderMe
-                                                                        ? 'bg-indigo-600 text-white rounded-tr-sm hover:bg-indigo-500 shadow-indigo-900/20'
-                                                                        : 'bg-white/10 text-slate-200 rounded-tl-sm hover:bg-white/15 shadow-black/20'}`}
+                                                                    className={`px-7 py-5 rounded-[2rem] text-[15px] leading-[1.6] shadow-2xl backdrop-blur-md transition-all relative border border-white/5 ${senderMe
+                                                                        ? 'bg-gradient-to-br from-indigo-600 to-indigo-700 text-white rounded-tr-sm shadow-indigo-900/40 border-indigo-500/30'
+                                                                        : 'bg-white/[0.08] text-slate-100 rounded-tl-sm shadow-black/40 hover:bg-white/[0.12] border-white/10'}`}
                                                                 >
                                                                     {msg.replyTo && (
-                                                                        <div className="mb-3 p-3 bg-black/20 rounded-xl border-l-4 border-white/20 text-xs opacity-70 italic truncate">
+                                                                        <div className="mb-4 p-4 bg-black/30 rounded-2xl border-l-[6px] border-indigo-500/50 text-[11px] font-bold text-slate-400 italic line-clamp-2">
                                                                             {messages.find(m => m.id === msg.replyTo)?.text || 'Původní zpráva smazána'}
                                                                         </div>
                                                                     )}
-                                                                    {msg.text}
-                                                                    <span className={`text-[9px] font-bold uppercase tracking-wider opacity-40 block text-right mt-1 ${senderMe ? 'text-indigo-200' : 'text-slate-400'}`}>
-                                                                        {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                    <span className="selection:bg-white selection:text-indigo-600">
+                                                                        {msg.text}
+                                                                    </span>
+                                                                    <span className={`text-[10px] font-bold uppercase tracking-[0.2em] opacity-40 block text-right mt-3 pointer-events-none ${senderMe ? 'text-indigo-100' : 'text-slate-400'}`}>
+                                                                        {(() => {
+                                                                            const d = new Date(msg.timestamp);
+                                                                            return isNaN(d.getTime()) ? 'Právě teď' : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                                                        })()}
                                                                     </span>
                                                                 </div>
 
                                                                 {/* Display Reactions */}
                                                                 {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-                                                                    <div className={`flex flex-wrap gap-1 mt-1.5 ${senderMe ? 'justify-end' : 'justify-start'}`}>
+                                                                    <div className={`flex flex-wrap gap-1.5 mt-2.5 ${senderMe ? 'justify-end' : 'justify-start'}`}>
                                                                         {Object.entries(msg.reactions).map(([emoji, userIds]) => {
                                                                             const reactedByMe = userIds.includes(currentUser?.workerId || -1);
                                                                             return (
                                                                                 <button
                                                                                     key={emoji}
                                                                                     onClick={() => handleToggleReaction(msg.id, emoji)}
-                                                                                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-black transition-all ${reactedByMe ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-300' : 'bg-white/5 border-white/5 text-slate-500 hover:border-white/10'}`}
+                                                                                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-2xl border text-[11px] font-black transition-all hover:scale-105 active:scale-90 ${reactedByMe ? 'bg-indigo-600 text-white border-indigo-500/50 shadow-lg shadow-indigo-600/30' : 'bg-white/[0.05] border-white/5 text-slate-400 hover:border-white/10'}`}
                                                                                 >
-                                                                                    <span className="text-xs">{emoji}</span>
+                                                                                    <span className="text-sm">{emoji}</span>
                                                                                     <span>{userIds.length}</span>
                                                                                 </button>
                                                                             );
@@ -430,9 +497,9 @@ const Chat: React.FC = () => {
                                                                     </div>
                                                                 )}
 
-                                                                {/* Seen Status Avatars (Only for the last message in a sequence or globally last) */}
+                                                                {/* Seen Status */}
                                                                 {msgIdx === item.messages.length - 1 && (
-                                                                    <div className={`flex items-center gap-1 mt-1.5 ${senderMe ? 'justify-end' : 'justify-start'}`}>
+                                                                    <div className={`flex items-center -space-x-1.5 mt-2.5 ${senderMe ? 'justify-end pr-1' : 'justify-start pl-1'}`}>
                                                                         {Object.entries(seenStatus)
                                                                             .filter(([uid, timestamp]) => {
                                                                                 const userIdNum = Number(uid);
@@ -446,11 +513,11 @@ const Chat: React.FC = () => {
                                                                                 return (
                                                                                     <div
                                                                                         key={uid}
-                                                                                        className="w-4 h-4 rounded-full border border-white/20 text-[6px] font-black flex items-center justify-center text-white shadow-sm"
+                                                                                        className="w-5 h-5 rounded-lg border-2 border-[#020617] text-[8px] font-black flex items-center justify-center text-white shadow-xl hover:translate-y-[-2px] transition-transform animate-in fade-in zoom-in duration-300"
                                                                                         style={{ backgroundColor: w?.color || '#334155' }}
                                                                                         title={`Viděno: ${w?.name}`}
                                                                                     >
-                                                                                        {w?.name.substring(0, 1).toUpperCase()}
+                                                                                        {(w?.name || '?').substring(0, 1).toUpperCase()}
                                                                                     </div>
                                                                                 );
                                                                             })}
@@ -483,38 +550,65 @@ const Chat: React.FC = () => {
                 )}
 
                 {/* Input Area */}
-                <div className="p-6 md:p-8 bg-black/20 backdrop-blur-xl border-t border-white/5 shrink-0 relative z-20">
-                    {replyToMessage && (
-                        <div className="max-w-5xl mx-auto mb-4 p-4 bg-indigo-500/10 border-l-4 border-indigo-500 rounded-r-2xl flex justify-between items-center animate-slide-up">
-                            <div className="flex-1 truncate">
-                                <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Odpověď pro {replyToMessage.senderName}</p>
-                                <p className="text-sm text-slate-300 truncate">{replyToMessage.text}</p>
+                <div className="p-4 md:p-10 bg-black/40 backdrop-blur-3xl border-t border-white/5 shrink-0 relative z-20">
+                    <div className="max-w-5xl mx-auto flex flex-col gap-6">
+                        {replyToMessage && (
+                            <div className="p-5 bg-indigo-500/10 border-l-[6px] border-indigo-600 rounded-2xl flex justify-between items-center animate-slide-up shadow-xl backdrop-blur-xl">
+                                <div className="flex-1 truncate group">
+                                    <div className="flex items-center gap-2 mb-1.5">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 group-hover:animate-ping"></div>
+                                        <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em]">Odpověď pro {replyToMessage.senderName}</p>
+                                    </div>
+                                    <p className="text-sm text-slate-300 truncate italic font-medium px-1 leading-relaxed">"{replyToMessage.text}"</p>
+                                </div>
+                                <button
+                                    onClick={() => setReplyToMessage(null)}
+                                    className="p-3 hover:bg-white/10 rounded-2xl text-slate-500 hover:text-white transition-all shadow-inner active:rotate-90 duration-300"
+                                >
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                                </button>
                             </div>
-                            <button onClick={() => setReplyToMessage(null)} className="p-2 hover:bg-white/5 rounded-full text-slate-500 hover:text-white transition-colors">
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" /></svg>
+                        )}
+
+                        <form onSubmit={handleSend} className="flex gap-4 md:gap-5 relative group/form">
+                            <div className="hidden sm:flex p-2 bg-white/5 hover:bg-indigo-600/20 rounded-[1.75rem] border border-white/5 hover:border-indigo-500/30 transition-all cursor-pointer items-center justify-center shrink-0 w-16 group/btn">
+                                <svg className="w-6 h-6 text-slate-500 group-hover:text-indigo-400 group-hover:rotate-90 transition-all duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path d="M12 6v12m6-6H6" /></svg>
+                            </div>
+
+                            <div className="flex-1 relative flex items-center">
+                                <input
+                                    type="text"
+                                    value={inputText}
+                                    onChange={e => { setInputText(e.target.value); handleTyping(); }}
+                                    placeholder={t('type_message')}
+                                    className="w-full bg-white/[0.04] border border-white/10 rounded-[2.2rem] px-8 py-6 text-base text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500/50 focus:ring-[12px] focus:ring-indigo-500/5 transition-all font-bold tracking-tight shadow-inner pr-16 md:pr-10"
+                                />
+                                <div className="absolute right-6 md:hidden">
+                                    <button
+                                        type="submit"
+                                        disabled={!inputText.trim() || isSending}
+                                        className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${inputText.trim() ? 'bg-indigo-600 text-white shadow-lg' : 'bg-white/5 text-slate-700'}`}
+                                    >
+                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3.5">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={!inputText.trim() || isSending}
+                                className="hidden md:flex group bg-indigo-600 disabled:opacity-20 disabled:grayscale disabled:scale-95 text-white px-12 rounded-[2.2rem] font-black uppercase tracking-[0.3em] text-[11px] active:scale-95 transition-all shadow-[0_20px_40px_rgba(79,70,229,0.4)] relative overflow-hidden items-center gap-3"
+                            >
+                                <span className="relative z-10 italic">Odeslat</span>
+                                <svg className="w-4 h-4 relative z-10 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3.5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                </svg>
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                             </button>
-                        </div>
-                    )}
-                    <form onSubmit={handleSend} className="flex gap-4 max-w-5xl mx-auto relative">
-                        <input
-                            type="text"
-                            value={inputText}
-                            onChange={e => { setInputText(e.target.value); handleTyping(); }}
-                            placeholder={t('type_message')}
-                            className="flex-1 bg-white/[0.03] border border-white/10 rounded-[2rem] px-8 py-5 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-bold text-sm tracking-wide"
-                        />
-                        <button
-                            type="submit"
-                            disabled={!inputText.trim() || isSending}
-                            className="group bg-indigo-600 disabled:opacity-30 disabled:cursor-not-allowed text-white w-16 h-auto md:w-auto md:px-10 rounded-[2rem] font-black uppercase tracking-[0.2em] active:scale-95 transition-all shadow-xl shadow-indigo-600/20 flex items-center justify-center overflow-hidden relative"
-                        >
-                            <span className="hidden md:inline relative z-10">Odeslat</span>
-                            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 md:group-hover:opacity-20 transition-opacity" />
-                            <svg className="w-6 h-6 md:hidden relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                            </svg>
-                        </button>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

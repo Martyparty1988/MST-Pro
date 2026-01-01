@@ -132,59 +132,59 @@ const Attendance: React.FC = () => {
                     </table>
                 </div>
             </div>
-        </div>
 
-            {/* Mobile Cards View */ }
-    <div className="md:hidden space-y-4">
-        {workers && workers.length > 0 ? workers.map(worker => {
-            const log = logsMap.get(worker.id!);
-            const status = log?.status || 'present';
-            const notes = log?.notes || '';
 
-            return (
-                <div key={worker.id} className="bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 space-y-4">
-                    <div className="flex items-center gap-4">
-                        <div
-                            className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg"
-                            style={{ backgroundColor: worker.color || 'var(--color-primary)' }}
-                        >
-                            {worker.name.charAt(0)}
+            {/* Mobile Cards View */}
+            <div className="md:hidden space-y-4">
+                {workers && workers.length > 0 ? workers.map(worker => {
+                    const log = logsMap.get(worker.id!);
+                    const status = log?.status || 'present';
+                    const notes = log?.notes || '';
+
+                    return (
+                        <div key={worker.id} className="bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 space-y-4">
+                            <div className="flex items-center gap-4">
+                                <div
+                                    className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg"
+                                    style={{ backgroundColor: worker.color || 'var(--color-primary)' }}
+                                >
+                                    {worker.name.charAt(0)}
+                                </div>
+                                <span className="text-xl font-bold text-white">{worker.name}</span>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t('status')}</label>
+                                <select
+                                    value={status}
+                                    onChange={(e) => handleLogChange(worker.id!, e.target.value as AttendanceStatus)}
+                                    className={`w-full p-4 border-0 rounded-xl text-base font-bold focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-white transition appearance-none ${getStatusClasses(status)}`}
+                                >
+                                    <option value="present" className="bg-gray-800">{t('present')}</option>
+                                    <option value="absent" className="bg-gray-800">{t('absent')}</option>
+                                    <option value="sick" className="bg-gray-800">{t('sick')}</option>
+                                    <option value="holiday" className="bg-gray-800">{t('holiday')}</option>
+                                </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t('notes')}</label>
+                                <input
+                                    type="text"
+                                    value={notes}
+                                    onChange={(e) => handleLogChange(worker.id!, undefined, e.target.value)}
+                                    placeholder={t('notes') + '...'}
+                                    className="w-full p-4 bg-black/20 border border-white/10 rounded-xl focus:border-white/50 focus:ring-0 text-gray-200 placeholder-gray-500"
+                                />
+                            </div>
                         </div>
-                        <span className="text-xl font-bold text-white">{worker.name}</span>
+                    );
+                }) : (
+                    <div className="text-center py-12 text-gray-400 opacity-60">
+                        {t('no_workers_defined')}
                     </div>
-
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t('status')}</label>
-                        <select
-                            value={status}
-                            onChange={(e) => handleLogChange(worker.id!, e.target.value as AttendanceStatus)}
-                            className={`w-full p-4 border-0 rounded-xl text-base font-bold focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-white transition appearance-none ${getStatusClasses(status)}`}
-                        >
-                            <option value="present" className="bg-gray-800">{t('present')}</option>
-                            <option value="absent" className="bg-gray-800">{t('absent')}</option>
-                            <option value="sick" className="bg-gray-800">{t('sick')}</option>
-                            <option value="holiday" className="bg-gray-800">{t('holiday')}</option>
-                        </select>
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t('notes')}</label>
-                        <input
-                            type="text"
-                            value={notes}
-                            onChange={(e) => handleLogChange(worker.id!, undefined, e.target.value)}
-                            placeholder={t('notes') + '...'}
-                            className="w-full p-4 bg-black/20 border border-white/10 rounded-xl focus:border-white/50 focus:ring-0 text-gray-200 placeholder-gray-500"
-                        />
-                    </div>
-                </div>
-            );
-        }) : (
-            <div className="text-center py-12 text-gray-400 opacity-60">
-                {t('no_workers_defined')}
+                )}
             </div>
-        )}
-    </div>
         </div >
     );
 };

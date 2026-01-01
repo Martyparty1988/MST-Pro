@@ -249,15 +249,7 @@ const Chat: React.FC = () => {
     }, [activeChannelId, projects, workers, currentUser]);
 
     return (
-        <div
-            className="fixed md:static inset-0 flex flex-col md:flex-row max-w-7xl mx-auto overflow-hidden bg-[#0a0c1a] z-40"
-            style={{
-                top: 'calc(var(--header-height, 64px) + var(--safe-top, 0px))',
-                bottom: 'calc(var(--nav-height, 72px) + var(--safe-bottom, 0px))',
-                paddingLeft: 'var(--safe-left, 0px)',
-                paddingRight: 'var(--safe-right, 0px)'
-            }}
-        >
+        <div className="flex flex-col md:flex-row h-full w-full overflow-hidden bg-[#0a0c1a] relative z-0 md:rounded-2xl border border-white/5 shadow-2xl">
             {/* Sidebar (List View) */}
             <div className={`w-full md:w-96 flex-col shrink-0 h-full border-r border-white/5 bg-black/40 backdrop-blur-3xl transition-all duration-500 ${mobileView === 'list' ? 'flex' : 'hidden md:flex'}`}>
                 <div className="p-8 pb-4 border-b border-white/5 space-y-6">

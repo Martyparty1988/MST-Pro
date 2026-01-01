@@ -65,6 +65,7 @@ const BottomNavBar: React.FC = () => {
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { t } = useI18n();
     const location = useLocation();
+    const isChat = location.pathname === '/chat';
     const [showQuickLog, setShowQuickLog] = useState(false);
 
     useEffect(() => {
@@ -98,15 +99,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     </div>
                 </header>
 
-                {/* Main Content Area */}
                 <main
-                    className="flex-1 overflow-y-auto custom-scrollbar overscroll-contain"
+                    className={`flex-1 ${isChat ? 'overflow-hidden flex flex-col' : 'overflow-y-auto custom-scrollbar overscroll-contain'}`}
                     style={{
-                        paddingTop: 'calc(var(--header-height) + var(--safe-top) + 1rem)',
-                        paddingBottom: 'calc(var(--nav-height) + var(--safe-bottom) + 2rem)',
+                        paddingTop: 'calc(var(--header-height, 64px) + var(--safe-top, 0px) + 1rem)',
+                        paddingBottom: 'calc(var(--nav-height, 72px) + var(--safe-bottom, 0px) + 2rem)',
                     }}
                 >
-                    <div key={location.pathname} className="max-w-7xl mx-auto w-full px-4 md:px-8 safe-x animate-fade-in">
+                    <div key={location.pathname} className={`max-w-7xl mx-auto w-full safe-x animate-fade-in ${isChat ? 'h-full flex flex-col px-0' : 'px-4 md:px-8'}`}>
                         {children}
                     </div>
                 </main>

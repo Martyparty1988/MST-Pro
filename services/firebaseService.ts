@@ -172,7 +172,7 @@ class FirebaseService {
             if (permission === 'granted') {
                 const token = await getToken(this.messaging, {
                     // This is a placeholder, a real VAPID key is needed from Firebase Console > Settings > Cloud Messaging
-                    vapidKey: 'BM6F-pXyU3R_5e7H8u1X2zR_L6VqW6X0H_Z0z2X0W_z_Z_Z_Z_Z_Z_Z_Z_Z_Z_Z_Z_Z_Z_Z_Z_Z_Z_Z_Z_Z_Z'
+                    vapidKey: 'BDqOth46amVRDvD1UhEUhB2FU7WFVzCDjhQ75J8Vt42g1VrdzBU8fQGzElB-gIeNGwmAYP-_XxhLpCzX7sK8'
                 });
 
                 if (token) {

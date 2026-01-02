@@ -15,10 +15,38 @@ import WrenchIcon from './icons/WrenchIcon';
 import CalendarIcon from './icons/CalendarIcon';
 import BrainIcon from './icons/BrainIcon';
 import NotificationBell from './NotificationBell';
+import { firebaseService } from '../services/firebaseService';
+import { db } from '../services/db';
+import { useToast } from '../contexts/ToastContext';
 
 const Sidebar: React.FC<{ className?: string; onClose?: () => void }> = ({ className = '', onClose }) => {
     const { t } = useI18n();
-    const { user, logout } = useAuth();
+    const { user, currentUser, logout } = useAuth();
+    const { showToast } = useToast();
+
+    const handleToggleMute = async () => {
+        if (!user?.workerId) return;
+        const newMuteStatus = !user.muteNotifications;
+        try {
+            // Update Firestore
+            await firebaseService.updateRecord('workers', String(user.workerId), {
+                muteNotifications: newMuteStatus
+            });
+            // Update Local Dexie
+            await db.workers.update(user.workerId, { muteNotifications: newMuteStatus });
+
+            showToast(newMuteStatus ? 'Notifikace ztlumeny' : 'Notifikace zapnuty', 'info');
+
+            // Note: We'd normally update AuthContext state here too, but since 
+            // AuthContext listens to onAuthStateChanged, and we don't reload the user profile 
+            // from Firestore there yet, we might need a manual update or wait for re-sync.
+            // For now, let's assume it will sync via Dexie liveQuery if used elsewhere or re-login.
+            // A better way would be an 'updateUser' method in AuthContext.
+            window.location.reload(); // Simple way to force refresh the user state from local/sync
+        } catch (error) {
+            showToast('Chyba při změně nastavení', 'error');
+        }
+    };
 
     const navItems = [
         { to: "/", title: t('dashboard'), icon: <DashboardIcon />, roles: ['admin', 'user'] },
@@ -120,6 +148,19 @@ const Sidebar: React.FC<{ className?: string; onClose?: () => void }> = ({ class
                         <p className="text-sm font-black uppercase italic tracking-tighter text-white truncate">{user?.username || 'Guest'}</p>
                         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{user?.role || 'User'}</p>
                     </div>
+
+                    <button
+                        onClick={handleToggleMute}
+                        className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all border ${user?.muteNotifications ? 'bg-rose-500/10 border-rose-500/30 text-rose-500' : 'bg-indigo-500/10 border-indigo-500/30 text-indigo-400'}`}
+                        title={user?.muteNotifications ? 'Zapnout notifikace' : 'Ztlumit notifikace'}
+                    >
+                        {user?.muteNotifications ? (
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" /></svg>
+                        ) : (
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                        )}
+                    </button>
+
                     <NotificationBell className="w-8 h-8 ml-2" />
                 </div>
                 <button

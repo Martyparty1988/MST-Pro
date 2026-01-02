@@ -8,6 +8,7 @@
   <link rel="apple-touch-icon" sizes="152x152" href="/icon-152.svg" />
   <link rel="apple-touch-icon" sizes="180x180" href="/icon-192.svg" />
   <link rel="apple-touch-icon" sizes="167x167" href="/icon-192.svg" />
+
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,247 +17,108 @@
   <meta name="format-detection" content="telephone=no">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#020617" />
+
   <meta name="description"
     content="Profesionální PWA nástroj pro správu solárních montáží, docházky, projektů a týmů. Funguje offline.">
   <title>MST - Martyho Solar Tracker</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+
   <link rel="manifest" href="/manifest.json" />
+
   <style>
-    :root {
-      --bg-gradient: radial-gradient(circle at 50% 0%, #1a1d37 0%, #0f172a 100%);
-      --color-primary: #6366f1;
-      --color-accent: #38bdf8;
-      --glass-bg: rgba(15, 23, 42, 0.7);
-      --glass-border: rgba(255, 255, 255, 0.1);
-
-      /* Mobile & Safe Area Tokens */
-      --safe-top: env(safe-area-inset-top, 0px);
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
-      --safe-left: env(safe-area-inset-left, 0px);
-      --safe-right: env(safe-area-inset-right, 0px);
-
-      --header-height: 64px;
-      --nav-height: 72px;
-      --min-touch-target: 44px;
-      --mobile-gutter: 16px;
-    }
-
-    [data-theme="stellar"] {
-      --bg-gradient: radial-gradient(circle at 50% 0%, #4c1d95 0%, #2e1065 40%, #020617 100%);
-      --color-primary: #a855f7;
-      --color-accent: #e879f9;
-    }
-
-    * {
-      -webkit-tap-highlight-color: transparent;
-      box-sizing: border-box;
-      outline-offset: 4px;
-    }
-
+    /* Critical CSS for immediate dark splash screen appearance */
     html,
     body {
+      background-color: #020617;
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100%;
-      height: -webkit-fill-available;
       overflow: hidden;
-      background: var(--bg-gradient);
-      background-attachment: fixed;
-      color: #f8fafc;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      -webkit-text-size-adjust: 100%;
-      overscroll-behavior: none;
     }
 
-    #root {
-      height: 100%;
+    #splash-loader {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 50% 0%, #0f172a 0%, #020617 100%);
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease-out;
+      pointer-events: none;
     }
 
-    /* Safe Area Utilities */
-    .h-screen-safe {
-      height: 100vh;
-      height: -webkit-fill-available;
+    #splash-content {
+      text-align: center;
+      animation: pulse 2s infinite ease-in-out;
     }
 
-    .pt-safe {
-      padding-top: var(--safe-top);
+    .splash-logo {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 3.5rem;
+      font-weight: 900;
+      font-style: italic;
+      letter-spacing: -0.05em;
+      color: white;
+      margin: 0;
+      text-transform: uppercase;
     }
 
-    .pb-safe {
-      padding-bottom: var(--safe-bottom);
+    .splash-dot {
+      color: #6366f1;
+      font-style: normal;
     }
 
-    .pl-safe {
-      padding-left: var(--safe-left);
+    .splash-bar {
+      width: 50px;
+      height: 3px;
+      background: #6366f1;
+      margin: 1rem auto;
+      border-radius: 99px;
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
     }
 
-    .pr-safe {
-      padding-right: var(--safe-right);
-    }
-
-    /* Prevent content stick in horizontal mode or notches */
-    .safe-x {
-      padding-left: max(var(--mobile-gutter), var(--safe-left));
-      padding-right: max(var(--mobile-gutter), var(--safe-right));
-    }
-
-    /* Premium Glass Effect */
-    .glass-card {
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    }
-
-    /* Scrollbar Styling */
-    .custom-scrollbar {
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 4px;
-      height: 4px;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-    }
-
-    /* Perfect Touch targets on mobile */
-    @media (pointer: coarse) {
-
-      button,
-      a,
-      input,
-      select,
-      textarea {
-        min-height: var(--min-touch-target);
-        min-width: var(--min-touch-target);
-      }
-
-      /* Prevent iOS Zoom */
-      input,
-      select,
-      textarea {
-        font-size: 16px !important;
-      }
-    }
-
-    /* Animation suite */
-    @keyframes fade-in {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .animate-fade-in {
-      animation: fade-in 0.4s ease-out forwards;
-    }
-
-    @keyframes slide-up {
-      from {
-        transform: translateY(100%);
-      }
-
-      to {
-        transform: translateY(0);
-      }
-    }
-
-    .animate-slide-up {
-      animation: slide-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    }
-
-    @keyframes bounce-subtle {
+    @keyframes pulse {
 
       0%,
       100% {
-        transform: translateY(0);
+        opacity: 0.7;
+        transform: scale(0.98);
       }
 
       50% {
-        transform: translateY(-4px);
-      }
-    }
-
-    .animate-bounce-subtle {
-      animation: bounce-subtle 2s infinite ease-in-out;
-    }
-
-    @keyframes swing {
-
-      0%,
-      100% {
-        transform: rotate(0deg);
-      }
-
-      20% {
-        transform: rotate(15deg);
-      }
-
-      40% {
-        transform: rotate(-10deg);
-      }
-
-      60% {
-        transform: rotate(5deg);
-      }
-
-      80% {
-        transform: rotate(-5deg);
-      }
-    }
-
-    .animate-swing {
-      transform-origin: top center;
-      animation: swing 2s infinite ease-in-out;
-    }
-
-    /* Transitions */
-    button,
-    .interactive {
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      cursor: pointer;
-    }
-
-    button:active {
-      transform: scale(0.95);
-      opacity: 0.8;
-    }
-
-    /* Reduced Motion */
-    @media (prefers-reduced-motion: reduce) {
-      * {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
+        opacity: 1;
+        transform: scale(1.02);
       }
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-
 </head>
 
 <body>
+  <div id="splash-loader">
+    <div id="splash-content">
+      <h1 class="splash-logo">MST<span class="splash-dot">.</span></h1>
+      <div class="splash-bar"></div>
+    </div>
+  </div>
+
   <div id="root"></div>
+
   <script type="module" src="/index.tsx"></script>
+
+  <script>
+    // Remove splash screen once React is mounted
+    window.addEventListener('load', () => {
+      const loader = document.getElementById('splash-loader');
+      if (loader) {
+        setTimeout(() => {
+          loader.style.opacity = '0';
+          setTimeout(() => loader.remove(), 600);
+        }, 500);
+      }
+    });
+  </script>
 </body>
 
 </html>

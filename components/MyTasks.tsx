@@ -117,16 +117,15 @@ const MyTasks: React.FC = () => {
     return (
         <div className="space-y-12 pb-24 animate-fade-in max-w-5xl mx-auto p-6 md:p-8">
             <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative">
-                <div className="space-y-2 relative z-10">
-                    <h1 className="text-8xl md:text-9xl font-black text-white tracking-tighter uppercase italic leading-[0.7]">
+                <div className="space-y-1.5 relative z-10 scale-90 origin-left">
+                    <h1 className="text-5xl md:text-9xl font-black text-white tracking-tighter uppercase italic leading-[0.85]">
                         Moje<br /><span className="text-indigo-500">Úkoly.</span>
                     </h1>
-                    <div className="h-2 w-32 bg-indigo-600 rounded-full shadow-[0_4px_20px_rgba(79,70,229,0.5)] mt-4" />
                 </div>
 
-                <div className="glass-dark px-8 py-4 rounded-[2rem] border border-white/5 bg-white/[0.02] backdrop-blur-xl relative z-10">
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Dnešní datum</p>
-                    <p className="text-2xl font-black text-white italic tracking-tighter">{now.toLocaleDateString()}</p>
+                <div className="ios-card px-5 py-3 border border-white/5 bg-white/[0.02] backdrop-blur-xl relative z-10">
+                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-0.5 opacity-50">Dnes</p>
+                    <p className="text-base font-black text-white italic tracking-tighter">{now.toLocaleDateString()}</p>
                 </div>
 
                 {/* Background Decoration */}
@@ -135,7 +134,7 @@ const MyTasks: React.FC = () => {
 
             {/* Active Task Section */}
             {activeTask ? (
-                <section className="relative overflow-hidden rounded-[3rem] p-10 shadow-[0_30px_60px_-15px_rgba(79,70,229,0.3)] border border-white/10 group">
+                <section className="relative overflow-hidden rounded-3xl p-6 md:p-10 shadow-xl border border-white/10 group">
                     {/* Dynamic Gradient Background */}
                     <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 to-blue-700 opacity-90 transition-all duration-1000 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-150 mix-blend-soft-light" />
@@ -150,7 +149,7 @@ const MyTasks: React.FC = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <h2 className="text-5xl md:text-6xl font-black text-white uppercase italic tracking-tighter leading-[0.9] drop-shadow-lg">
+                                <h2 className="text-2xl md:text-6xl font-black text-white uppercase italic tracking-tighter leading-tight drop-shadow-lg">
                                     {activeTask.description}
                                 </h2>
                                 <div className="flex items-center gap-3 opacity-90">
@@ -160,22 +159,22 @@ const MyTasks: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="flex flex-col items-end gap-6">
-                            <div className="text-right bg-black/20 p-8 rounded-[2.5rem] border border-white/10 backdrop-blur-md min-w-[200px] shadow-2xl">
-                                <p className="text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em] mb-2 opacity-80">Doba trvání</p>
-                                <p className="text-5xl font-mono font-black text-white tracking-tight">{formatDuration(new Date(activeTask.startTime!), now)}</p>
+                        <div className="flex flex-col items-end gap-3 w-full md:w-auto">
+                            <div className="text-right bg-black/20 p-6 rounded-2xl border border-white/10 backdrop-blur-md min-w-[200px] shadow-2xl w-full">
+                                <p className="text-[9px] font-black text-indigo-200 uppercase tracking-widest mb-1 opacity-60">Doba trvání</p>
+                                <p className="text-3xl font-mono font-black text-white tracking-tight">{formatDuration(new Date(activeTask.startTime!), now)}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="mt-12 flex flex-col sm:flex-row gap-4 relative z-10">
+                    <div className="mt-8 flex flex-col sm:flex-row gap-3 relative z-10">
                         <button
                             onClick={() => handleFinishTask(activeTask)}
-                            className="flex-1 group/btn relative overflow-hidden bg-white text-black py-6 rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs hover:bg-emerald-400 hover:text-black transition-all shadow-[0_20px_40px_rgba(0,0,0,0.2)] active:scale-95 flex items-center justify-center gap-4"
+                            className="flex-1 group/btn relative overflow-hidden bg-white text-black py-4 rounded-xl font-black uppercase tracking-[0.1em] text-[10px] hover:bg-emerald-400 hover:text-black transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3"
                         >
                             <div className="absolute inset-0 bg-emerald-400 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500 ease-in-out" />
-                            <span className="relative z-10 flex items-center gap-3">
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                            <span className="relative z-10 flex items-center gap-2">
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                                 Hotovo / Dokončit
                             </span>
                         </button>
@@ -208,11 +207,11 @@ const MyTasks: React.FC = () => {
                     <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter">Fronta Úkolů <span className="text-indigo-500 text-lg not-italic align-top">({pendingTasks?.length || 0})</span></h3>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {pendingTasks?.map((task, idx) => (
                         <div
                             key={task.id}
-                            className="group glass-dark rounded-[2.5rem] p-8 border border-white/5 hover:border-indigo-500/30 transition-all duration-500 hover:scale-[1.02] relative overflow-hidden"
+                            className="group ios-card p-6 border border-white/5 hover:border-indigo-500/30 transition-all duration-300 active:scale-[0.98] relative overflow-hidden"
                             style={{ animationDelay: `${idx * 0.05}s` }}
                         >
                             <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">

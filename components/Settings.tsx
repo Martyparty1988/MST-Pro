@@ -25,6 +25,9 @@ const Settings: React.FC = () => {
     const { showToast } = useToast();
     const [isResetting, setIsResetting] = useState(false);
 
+    // ✅ OPRAVA: Bezpečná kontrola Notification API
+    const notificationPermission = typeof Notification !== 'undefined' ? Notification.permission : 'denied';
+
     const handleClearAll = async () => {
         await db.transaction('rw', db.tables, async () => {
             for (const table of db.tables) await table.clear();
@@ -93,8 +96,13 @@ const Settings: React.FC = () => {
                         <div className="flex items-center justify-between flex-wrap gap-6">
                             <div className="space-y-2">
                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Aktuální stav</p>
-                                <h3 className={`text-2xl font-black italic tracking-tighter uppercase ${Notification.permission === 'granted' ? 'text-emerald-500' : 'text-slate-400'}`}>
-                                    {Notification.permission === 'granted' ? 'Aktivní' : Notification.permission === 'denied' ? 'Zakázáno' : 'Čeká se'}
+                                <h3 className={`text-2xl font-black italic tracking-tighter uppercase ${notificationPermission === 'granted'
+                                        ? 'text-emerald-500'
+                                        : notificationPermission === 'denied'
+                                            ? 'text-slate-400'
+                                            : 'text-slate-500'
+                                    }`}>
+                                    {notificationPermission === 'granted' ? 'Aktivní' : notificationPermission === 'denied' ? 'Zakázáno' : 'Čeká se'}
                                 </h3>
                             </div>
 
@@ -103,7 +111,9 @@ const Settings: React.FC = () => {
                                     const token = await firebaseService.requestNotificationPermission(user?.workerId);
                                     if (token) {
                                         showToast('Oznámení povolena!', 'success');
-                                        new Notification("MST System", { body: "Oznámení byla úspěšně aktivována." });
+                                        if (typeof Notification !== 'undefined') {
+                                            new Notification("MST System", { body: "Oznámení byla úspěšně aktivována." });
+                                        }
                                     } else {
                                         showToast('Povolte oznámení v prohlížeči', 'error');
                                     }

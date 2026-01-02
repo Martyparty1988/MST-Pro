@@ -24,7 +24,15 @@ import { getMessaging, getToken, onMessage, Messaging } from 'firebase/messaging
 import { getDatabase, ref, set, push, onValue, off, remove, goOnline, goOffline, onDisconnect, get, Database } from 'firebase/database';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getAuth, Auth } from 'firebase/auth';
-import { db } from './db'; // Import Dexie instance
+import {
+    collection as firestoreCollection,
+    addDoc,
+    query as firestoreQuery,
+    orderBy,
+    limit,
+    onSnapshot as firestoreOnSnapshot
+} from 'firebase/firestore';
+import { db } from './db';
 import { getAnalytics, Analytics } from "firebase/analytics";
 
 const firebaseConfig = {
@@ -135,12 +143,38 @@ class FirebaseService {
         const typingRef = ref(this.rtdb, path);
 
         if (isTyping) {
-            // Set timestamp and remove on disconnect
-            await set(typingRef, { name: userName, timestamp: serverTimestamp() });
+            await set(typingRef, { name: userName, timestamp: Date.now() });
             onDisconnect(typingRef).remove();
         } else {
             await set(typingRef, null);
         }
+    }
+
+    // ========== NEW: FIRESTORE CHAT METHODS ==========
+    public async sendMessageFirestore(channelId: string, message: any) {
+        if (!this.db) return;
+        const msgCol = firestoreCollection(this.db, 'channels', channelId, 'messages');
+        return await addDoc(msgCol, {
+            ...message,
+            timestamp: serverTimestamp(),
+            updatedAt: serverTimestamp()
+        });
+    }
+
+    public subscribeMessagesFirestore(channelId: string, callback: (messages: any[]) => void) {
+        if (!this.db) return () => { };
+        const msgCol = firestoreCollection(this.db, 'channels', channelId, 'messages');
+        const q = firestoreQuery(msgCol, orderBy('timestamp', 'asc'), limit(100));
+
+        return firestoreOnSnapshot(q, (snapshot) => {
+            const messages = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                // Convert Firestore Timestamp to ISO string for consistency
+                timestamp: doc.data().timestamp?.toDate?.()?.toISOString() || new Date().toISOString()
+            }));
+            callback(messages);
+        });
     }
 
     public subscribeTypingStatus(channelId: string, callback: (typingUsers: { [key: string]: { name: string, timestamp: number } }) => void) {
@@ -166,28 +200,39 @@ class FirebaseService {
     }
 
     public async requestNotificationPermission(workerId?: number) {
-        if (!this.messaging) return null;
+        if (!this.messaging || typeof Notification === 'undefined' || typeof window === 'undefined') {
+            console.warn('Messaging/Notification API not available');
+            return null;
+        }
+
         try {
             const permission = await Notification.requestPermission();
             if (permission === 'granted') {
                 const token = await getToken(this.messaging, {
-                    // This is a placeholder, a real VAPID key is needed from Firebase Console > Settings > Cloud Messaging
-                    vapidKey: 'BDqOth46amVRDvD1UhEUhB2FU7WFVzCDjhQ75J8Vt42g1VrdzBU8fQGzElB-gIeNGwmAYP-_XxhLpCzX7sK8'
+                    vapidKey: 'BDqOth46amVRDvD1UhEUhBZFU7WFVzCDJbHO75J8Vi42g1VrdzBU8fQGzEIB-_gieNGwmAYP_-XxhLpCzX7s_K8'
                 });
 
                 if (token) {
                     this.currentFcmToken = token;
-                    console.log('FCM Token:', token);
-                    // Update worker in RTDB and Firestore
+                    console.log('FCM Token secured:', token);
+
                     if (workerId) {
-                        await this.setData(`workers/${workerId}`, { id: workerId, fcmToken: token, lastSeen: new Date().toISOString() });
-                        await this.updateRecord('workers', String(workerId), { fcmToken: token });
+                        // Crucial: Update both Firestore and RTDB for compatibility
+                        await this.updateRecord('workers', String(workerId), {
+                            fcmToken: token,
+                            lastSeen: serverTimestamp()
+                        });
+
+                        // Also update RTDB for status monitoring
+                        if (this.rtdb) {
+                            await set(ref(this.rtdb, `workers/${workerId}/fcmToken`), token);
+                        }
                     }
                     return token;
                 }
             }
         } catch (error) {
-            console.error('Permission/Token error:', error);
+            console.error('FCM Registration Error:', error);
         }
         return null;
     }

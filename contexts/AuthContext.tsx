@@ -1,4 +1,5 @@
 
+
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import {
   onAuthStateChanged,
@@ -56,7 +57,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const userData: User = {
             username: worker.name,
             role: (worker as any).role || 'user',
-            workerId: worker.id
+            workerId: worker.id,
+            muteNotifications: worker.muteNotifications || false
           };
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));

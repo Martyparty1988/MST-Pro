@@ -65,20 +65,7 @@ export default defineConfig({
               }
             }
           },
-          // Background Sync for Google Apps Script
-          {
-            urlPattern: /^https:\/\/script\.google\.com\/macros\/s\/.*\/exec/,
-            handler: 'NetworkOnly',
-            method: 'POST',
-            options: {
-              backgroundSync: {
-                name: 'google-sheets-sync-queue',
-                options: {
-                  maxRetentionTime: 24 * 60 // Retry for max of 24 Hours (specified in minutes)
-                }
-              }
-            }
-          }
+
         ]
       }
     })

@@ -19,42 +19,37 @@ const BottomNavBar: React.FC = () => {
     const { user } = useAuth();
 
     const navItems = [
-        { to: "/", title: t('dashboard'), icon: <DashboardIcon className="w-8 h-8" />, roles: ['admin', 'user'] },
-        { to: "/projects", title: 'Seznam', icon: <ProjectsIcon className="w-8 h-8" />, roles: ['admin', 'user'] },
-        { to: "/chat", title: "Chat", icon: <ChatIcon className="w-8 h-8" />, roles: ['admin', 'user'] },
-        { to: "/records", title: 'Práce', icon: <ClockIcon className="w-8 h-8" />, roles: ['admin', 'user'] },
-        { to: "/settings", title: t('settings'), icon: <SettingsIcon className="w-8 h-8" />, roles: ['admin', 'user'] },
+        { to: "/", title: t('dashboard'), icon: <DashboardIcon />, roles: ['admin', 'user'] },
+        { to: "/projects", title: 'Seznam', icon: <ProjectsIcon />, roles: ['admin', 'user'] },
+        { to: "/chat", title: "Chat", icon: <ChatIcon />, roles: ['admin', 'user'] },
+        { to: "/records", title: 'Práce', icon: <ClockIcon />, roles: ['admin', 'user'] },
+        { to: "/settings", title: t('settings'), icon: <SettingsIcon />, roles: ['admin', 'user'] },
     ];
 
     const visibleItems = navItems.filter(item => item.roles.includes(user?.role || 'user'));
 
     return (
         <nav
-            className="fixed bottom-0 left-0 z-[100] w-full bg-[#020617]/95 backdrop-blur-3xl border-t border-white/5 md:hidden shadow-[0_-15px_50px_rgba(0,0,0,0.8)] pb-safe"
+            className="fixed bottom-0 left-0 z-[100] w-full bg-[#020617]/80 backdrop-blur-2xl border-t border-white/5 md:hidden"
+            style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
         >
-            <div className="flex justify-around items-center px-2 py-3 safe-x">
+            <div className="flex justify-around items-center h-[--nav-height] px-2">
                 {visibleItems.map(item => (
                     <NavLink
                         key={item.to}
                         to={item.to}
                         className={({ isActive }) =>
-                            `group flex flex-col items-center justify-center w-full gap-1 transition-all duration-300 touch-manipulation min-h-[64px] rounded-2xl ${isActive
-                                ? 'text-white'
-                                : 'text-slate-500'}`
+                            `flex flex-col items-center justify-center flex-1 transition-all duration-300 ${isActive ? 'text-indigo-400' : 'text-slate-500'}`
                         }
                     >
-                        {({ isActive }) => (
-                            <>
-                                <div className={`relative p-3 rounded-2xl transition-all duration-500 ${isActive ? 'bg-indigo-600 shadow-lg scale-110 -translate-y-1 border border-white/20' : 'bg-transparent'}`}>
-                                    {React.cloneElement(item.icon as React.ReactElement<{ className?: string }>, {
-                                        className: `w-6 h-6 transition-colors ${isActive ? "text-white" : "text-slate-500"}`
-                                    })}
-                                </div>
-                                <span className={`text-[8px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${isActive ? 'opacity-100 text-indigo-400' : 'opacity-0 h-0 hidden'}`}>
-                                    {item.title}
-                                </span>
-                            </>
-                        )}
+                        <div className="relative p-1">
+                            {React.cloneElement(item.icon as React.ReactElement<{ className?: string }>, {
+                                className: `w-6 h-6 transition-transform duration-300`
+                            })}
+                        </div>
+                        <span className="text-[9px] font-bold uppercase tracking-widest mt-0.5">
+                            {item.title}
+                        </span>
                     </NavLink>
                 ))}
             </div>
@@ -63,7 +58,6 @@ const BottomNavBar: React.FC = () => {
 };
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { t } = useI18n();
     const location = useLocation();
     const isChat = location.pathname === '/chat';
     const [showQuickLog, setShowQuickLog] = useState(false);
@@ -83,13 +77,13 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     }, []);
 
     return (
-        <div className="w-full h-full flex bg-transparent overflow-hidden h-screen-safe">
+        <div className="w-full h-full flex bg-transparent overflow-hidden" style={{ height: '100dvh' }}>
             {/* Desktop Sidebar - Hidden on mobile */}
             <Sidebar className="hidden md:flex" />
 
             {/* Mobile Sidebar Overlay */}
             <div
-                className={`fixed inset-0 z-[200] md:hidden transition-all duration-300 ${isSidebarOpen ? 'bg-black/80 backdrop-blur-sm visible opacity-100' : 'invisible opacity-0 pointer-events-none'}`}
+                className={`fixed inset-0 z-[200] md:hidden transition-all duration-300 ${isSidebarOpen ? 'bg-black/60 backdrop-blur-sm opacity-100' : 'opacity-0 pointer-events-none'}`}
                 onClick={() => setIsSidebarOpen(false)}
             >
                 <div
@@ -100,22 +94,21 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 </div>
             </div>
 
-            <div className="flex-1 flex flex-col overflow-hidden md:ml-64 relative">
+            <div className="flex-1 flex flex-col overflow-hidden md:ml-64 relative h-full">
                 {/* Header - Only for Mobile */}
-                <header className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#020617]/90 backdrop-blur-3xl border-b border-white/5 pt-safe shadow-xl">
-                    <div className="flex justify-between items-center h-16 px-6 safe-x">
-                        <div className="flex items-center gap-4">
-                            {/* Hamburger Menu Trigger */}
+                <header className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#020617]/80 backdrop-blur-2xl border-b border-white/5 pt-safe">
+                    <div className="flex justify-between items-center h-[--header-height] px-4">
+                        <div className="flex items-center gap-3">
                             <button
                                 onClick={() => setIsSidebarOpen(true)}
-                                className="p-2 -ml-2 text-slate-400 hover:text-white active:scale-95 transition-all"
+                                className="p-1.5 text-slate-400 active:scale-95 transition-all"
                             >
-                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16M4 18h16" /></svg>
                             </button>
-                            <span className="text-xl font-black italic tracking-tighter text-white">MST<span className="text-indigo-500">.</span></span>
+                            <span className="text-lg font-black italic tracking-tighter text-white">MST<span className="text-indigo-500">.</span></span>
                         </div>
-                        <div className="flex items-center gap-4">
-                            <NotificationBell className="w-10 h-10 -mr-2" />
+                        <div className="flex items-center gap-2">
+                            <NotificationBell className="w-9 h-9" />
                             <ConnectionStatusIndicator />
                         </div>
                     </div>
@@ -124,37 +117,34 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 <main
                     className={`flex-1 ${isChat ? 'overflow-hidden flex flex-col' : 'overflow-y-auto custom-scrollbar overscroll-contain'}`}
                     style={{
-                        paddingTop: 'calc(var(--header-height, 64px) + var(--safe-top, 0px) + 1rem)',
-                        paddingBottom: 'calc(var(--nav-height, 72px) + var(--safe-bottom, 0px) + 2rem)',
+                        paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))',
+                        paddingBottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))',
                     }}
                 >
-                    <div key={location.pathname} className={`max-w-7xl mx-auto w-full safe-x animate-fade-in ${isChat ? 'h-full flex flex-col px-0' : 'px-4 md:px-8'}`}>
+                    <div key={location.pathname} className={`max-w-7xl mx-auto w-full animate-fade-in ${isChat ? 'h-full flex flex-col px-0' : 'px-4 py-4 md:py-8'}`}>
                         {children}
                     </div>
                 </main>
 
-                {/* Bottom Nav for mobile */}
                 <BottomNavBar />
 
-                {/* Global FAB - Log Work */}
+                {/* FAB - Adjusted for safe areas */}
                 <div
                     className="fixed z-40 md:bottom-10 md:right-10"
                     style={{
-                        bottom: 'calc(var(--nav-height) + var(--safe-bottom) + 20px)',
-                        right: 'max(16px, var(--safe-right))'
+                        bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px) + 12px)',
+                        right: 'max(16px, env(safe-area-inset-right, 16px))'
                     }}
                 >
                     <button
                         onClick={() => setShowQuickLog(true)}
-                        className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-blue-700 rounded-full shadow-[0_15px_40px_rgba(0,0,0,0.5)] flex items-center justify-center text-white active:scale-95 transition-all hover:scale-105 border border-white/20"
-                        title="Zapsat práci (Z)"
+                        className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-full shadow-2xl flex items-center justify-center text-white active:scale-90 transition-transform"
                     >
-                        <ClockIcon className="w-8 h-8 drop-shadow-lg" />
+                        <ClockIcon className="w-7 h-7" />
                     </button>
                 </div>
             </div>
 
-            {/* Global Quick Log Modal */}
             {showQuickLog && (
                 <TimeRecordForm onClose={() => setShowQuickLog(false)} />
             )}

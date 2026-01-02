@@ -10,6 +10,8 @@ export interface Worker {
   color?: string;
   createdAt: Date;
   projectIds?: number[]; // IDs of projects the worker is assigned to
+  fcmToken?: string;
+  muteNotifications?: boolean;
 }
 
 export interface Project {
@@ -49,6 +51,7 @@ export interface User {
   username: string;
   role: 'user' | 'admin';
   workerId?: number;
+  muteNotifications?: boolean;
 }
 
 export interface FieldTable {

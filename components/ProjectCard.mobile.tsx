@@ -60,9 +60,9 @@ const ProjectCardMobile: React.FC<{
         onDelete(project);
         setIsSwiped(false);
     };
-    
+
     const handleCardClick = () => {
-        if(isSwiped) {
+        if (isSwiped) {
             setIsSwiped(false);
         } else {
             onManageTasks(project);
@@ -70,28 +70,28 @@ const ProjectCardMobile: React.FC<{
     }
 
     return (
-        <div className="relative w-full overflow-hidden rounded-2xl" ref={cardRef}>
+        <div className="relative w-full overflow-hidden" ref={cardRef}>
             <div
                 className={`transition-transform duration-300 ease-in-out transform ${isSwiped ? '-translate-x-32' : 'translate-x-0'}`}
                 {...swipeHandlers}
                 onClick={handleCardClick}
             >
-                <div className="bg-slate-800/50 backdrop-blur-md p-4 border border-white/10 flex flex-col gap-4 active:bg-slate-700 transition-colors">
-                    <div className="flex justify-between items-start">
-                        <h3 className="font-bold text-white text-lg line-clamp-2 pr-2">{project.name}</h3>
-                        <div className={`shrink-0 px-3 py-1 text-xs font-semibold rounded-full text-white flex items-center gap-2 ${getStatusColor(project.status)}`}>
-                            <span className={`w-2 h-2 rounded-full ${getStatusColor(project.status)} animate-pulse`}></span>
+                <div className="ios-card p-5 flex flex-col gap-4 active:bg-slate-700/50 transition-all border border-white/5 shadow-lg">
+                    <div className="flex justify-between items-start gap-3">
+                        <h3 className="font-black text-white text-lg tracking-tight italic uppercase pr-2 leading-tight">{project.name}</h3>
+                        <div className={`shrink-0 px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-full text-white flex items-center gap-1.5 ${getStatusColor(project.status)} bg-opacity-20 border border-white/10`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${getStatusColor(project.status)} animate-pulse`}></span>
                             {t(project.status as any)}
                         </div>
                     </div>
 
-                    <div>
-                        <div className="flex justify-between items-center mb-1">
-                            <span className="text-xs font-semibold text-slate-400">{t('tasks')}</span>
-                            <span className="text-xs font-bold text-white">{stats.completedTasks} / {stats.totalTasks}</span>
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-end">
+                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest opacity-60">{t('tasks')}</span>
+                            <span className="text-[11px] font-black text-white italic">{stats.completedTasks} <span className="text-slate-600">/ {stats.totalTasks}</span></span>
                         </div>
-                        <div className="w-full bg-slate-700 rounded-full h-2.5">
-                            <div className="bg-indigo-600 h-2.5 rounded-full" style={{ width: `${stats.taskProgress}%` }}></div>
+                        <div className="w-full bg-black/40 rounded-full h-1.5 overflow-hidden">
+                            <div className="bg-indigo-500 h-full rounded-full transition-all duration-700" style={{ width: `${stats.taskProgress}%` }}></div>
                         </div>
                     </div>
                 </div>

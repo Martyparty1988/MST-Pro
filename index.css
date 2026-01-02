@@ -4,6 +4,7 @@
 
 :root {
   --bg-gradient: radial-gradient(circle at 50% 0%, #0f172a 0%, #020617 100%);
+  --bg-solid: #020617;
   --color-primary: #6366f1;
   --color-accent: #38bdf8;
   --glass-bg: rgba(15, 23, 42, 0.7);
@@ -14,25 +15,40 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
+
+  /* Layout Constants */
+  --header-height: 52px;
+  --nav-height: 68px;
 }
 
-* {
-  -webkit-tap-highlight-color: transparent;
-  box-sizing: border-box;
-}
-
+/* 
+  NATIVE iOS FEEL: 
+  Logic to prevent white bar and ensure 100% height 
+*/
+html,
 body {
-  background: var(--bg-gradient);
-  background-attachment: fixed;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-solid);
   color: #f8fafc;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  margin: 0;
-  min-height: 100vh;
-  overflow-x: hidden;
   -webkit-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overscroll-behavior-y: contain;
+  overflow: hidden;
+  position: fixed;
+  /* Lock body to prevent pull-to-refresh / bounce in PWA */
+  overscroll-behavior: none;
+}
+
+#root {
+  height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Premium Glassmorphism */
@@ -52,8 +68,8 @@ body {
 
 /* Custom Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -65,67 +81,93 @@ body {
   border-radius: 10px;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
 /* Animations */
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-@keyframes slide-up {
-  from { opacity: 0; transform: translateY(100%); }
-  to { opacity: 1; transform: translateY(0); }
+.animate-fade-in {
+  animation: fade-in 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
-@keyframes scale-in {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+/* Typography Scaling for Mobile */
+h1 {
+  letter-spacing: -0.05em;
+  font-weight: 900;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+@media (max-width: 480px) {
+
+  h1,
+  .hero-title {
+    font-size: 2.2rem !important;
+    line-height: 1 !important;
+  }
+
+  h2,
+  .section-title {
+    font-size: 1.5rem !important;
+    line-height: 1.1 !important;
+  }
+
+  .text-9xl,
+  .text-8xl,
+  .text-7xl {
+    font-size: 2.8rem !important;
+  }
+
+  .text-6xl {
+    font-size: 2.4rem !important;
+  }
 }
 
-.animate-fade-in { animation: fade-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-.animate-slide-up { animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.animate-scale-in { animation: scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-.animate-float { animation: float 6s ease-in-out infinite; }
-
-/* Interactive Elements */
-.interactive {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+/* Safe Area Utility Classes */
+.pt-safe {
+  padding-top: var(--safe-top);
 }
 
-.interactive:active {
-  transform: scale(0.97);
+.pb-safe {
+  padding-bottom: var(--safe-bottom);
 }
 
-/* Typography Enhancements */
-.text-gradient {
-  background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.5) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.px-safe {
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
 }
 
-/* Tab Bar Glow */
-.tab-glow {
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.1);
+/* Prevent auto-zoom on inputs in iOS */
+input,
+select,
+textarea {
+  font-size: 16px !important;
 }
 
-/* Safe Area Insets */
-.pt-safe { padding-top: var(--safe-top); }
-.pb-safe { padding-bottom: calc(var(--safe-bottom) + 1rem); }
-.px-safe { padding-left: var(--safe-left); padding-right: var(--safe-right); }
-
-/* Hide scrollbars but allow scrolling */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Native-like card styling */
+.ios-card {
+  @apply bg-white/[0.03] border border-white/5 backdrop-blur-md;
+  border-radius: 18px;
+}
+
+@media (max-width: 480px) {
+  .ios-card {
+    border-radius: 14px;
+    @apply w-full;
+  }
 }

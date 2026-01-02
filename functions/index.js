@@ -1,157 +1,148 @@
+
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
 
 /**
- * Automatické odeslání push notifikace při nové zprávě v chatu (VYLEPŠENO)
+ * 1️⃣ Real-time Chat Push Notifications (Firestore Trigger)
+ * Triggered when a new message is created in any channel.
  */
-exports.sendChatNotification = functions.database.ref('/chat/{channelId}/{messageId}')
+exports.onMessageCreate = functions.firestore
+    .document('channels/{channelId}/messages/{messageId}')
     .onCreate(async (snapshot, context) => {
-        const message = snapshot.val();
-        const channelId = context.params.channelId;
+        const message = snapshot.data();
+        const { channelId, messageId } = context.params;
 
-        if (message.senderId === -1) return null; // Ignorovat systémové
+        if (!message || message.senderId === -1) return null; // Ignore system messages
 
+        // 6️⃣ Notification payload construction
         const payload = {
             notification: {
-                title: `${message.senderName} (${channelId === 'general' ? 'Global' : 'Chat'})`,
-                body: message.text.length > 100 ? message.text.substring(0, 97) + '...' : message.text,
-                icon: '/icon-192.svg',
-                clickAction: `/#/chat`,
+                title: message.senderName || 'Nová zpráva',
+                body: message.text.length > 35 ? message.text.substring(0, 32) + '...' : message.text,
+                icon: 'https://mst-ap.web.app/icon-192.svg', // Use absolute URL for absolute reliability
+                badge: '1', // Incrementing is complex, setting to 1 as a signal
             },
             data: {
                 channelId: channelId,
-                senderId: String(message.senderId)
+                messageId: messageId,
+                clickAction: `/chat/${channelId}` // 3️⃣ Custom data for routing
+            },
+            android: {
+                notification: {
+                    clickAction: 'FLUTTER_NOTIFICATION_CLICK', // Legacy but sometimes helps
+                    sound: 'default'
+                }
+            },
+            apns: {
+                payload: {
+                    aps: {
+                        badge: 1,
+                        sound: 'default',
+                        'mutable-content': 1 // Enable service worker manipulation
+                    }
+                }
             }
         };
 
         const tokens = [];
-        const workersSnapshot = await admin.database().ref('/workers').once('value');
-        const workers = workersSnapshot.val();
-        if (!workers) return null;
 
-        const workerList = Object.values(workers);
+        // Fetch all workers to find targets and check "mute" status
+        // Note: For production, you'd store tokens in a separate collection or use groups
+        const workersSnap = await admin.firestore().collection('workers').get();
+        const allWorkers = workersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
         if (channelId === 'general') {
-            // Pošli všem s tokenem kromě odesílatele
-            workerList.forEach(w => {
-                if (w.id !== message.senderId && w.fcmToken) tokens.push(w.fcmToken);
-            });
-        }
-        else if (channelId.startsWith('project_')) {
-            // Pošli jen členům projektu
-            const projectId = parseInt(channelId.replace('project_', ''));
-            const projectSnap = await admin.database().ref(`/projects/${projectId}`).once('value');
-            const project = projectSnap.val();
-
-            const memberIds = project?.workerIds || [];
-            workerList.forEach(w => {
-                if (memberIds.includes(w.id) && w.id !== message.senderId && w.fcmToken) {
+            // Global channel - send to everyone except sender
+            allWorkers.forEach(w => {
+                if (String(w.id) !== String(message.senderId) && w.fcmToken && !w.muteNotifications) {
                     tokens.push(w.fcmToken);
                 }
             });
-        }
-        else if (channelId.startsWith('dm_')) {
-            // Pošli jen druhému účastníkovi v DM (dm_ID1_ID2)
-            const parts = channelId.split('_');
-            const targetId = parseInt(parts[1]) === message.senderId ? parseInt(parts[2]) : parseInt(parts[1]);
+        } else if (channelId.startsWith('project_')) {
+            // Project channel - send to project members
+            const projectId = channelId.replace('project_', '');
+            const projectSnap = await admin.firestore().collection('projects').doc(projectId).get();
+            const project = projectSnap.data();
+            const memberIds = project?.workerIds || [];
 
-            const targetWorker = workerList.find(w => w.id === targetId);
-            if (targetWorker && targetWorker.fcmToken) {
+            allWorkers.forEach(w => {
+                if (memberIds.includes(Number(w.id)) && String(w.id) !== String(message.senderId) && w.fcmToken && !w.muteNotifications) {
+                    tokens.push(w.fcmToken);
+                }
+            });
+        } else if (channelId.startsWith('dm_')) {
+            // Private message (dm_ID1_ID2)
+            const ids = channelId.split('_').slice(1);
+            const targetId = ids.find(id => String(id) !== String(message.senderId));
+
+            const targetWorker = allWorkers.find(w => String(w.id) === String(targetId));
+            if (targetWorker && targetWorker.fcmToken && !targetWorker.muteNotifications) {
                 tokens.push(targetWorker.fcmToken);
-                payload.notification.title = `Soukromá zpráva: ${message.senderName}`;
+                payload.notification.title = `Zpráva od: ${message.senderName}`;
             }
         }
 
         if (tokens.length > 0) {
             try {
-                const messages = tokens.map(token => ({
+                // Remove duplicates
+                const uniqueTokens = [...new Set(tokens)];
+
+                const fcmMessages = uniqueTokens.map(token => ({
                     token: token,
                     notification: payload.notification,
-                    data: payload.data
+                    data: payload.data,
+                    apns: payload.apns
                 }));
-                await admin.messaging().sendEach(messages);
-                console.log(`✅ Notifikace doručena na ${tokens.length} zařízení v kanálu ${channelId}`);
+
+                const response = await admin.messaging().sendEach(fcmMessages);
+                console.log(`✅ Push Sent: ${response.successCount} success / ${response.failureCount} failure. Channel: ${channelId}`);
+
+                // --- Update Unread Badge in RTDB (for UI sync) ---
+                const unreadUpdates = {};
+                uniqueTokens.forEach(token => {
+                    const w = allWorkers.find(worker => worker.fcmToken === token);
+                    if (w) {
+                        unreadUpdates[`unread/${w.id}/${channelId}`] = {
+                            text: message.text,
+                            senderName: message.senderName,
+                            timestamp: admin.database.ServerValue.TIMESTAMP
+                        };
+                    }
+                });
+
+                if (Object.keys(unreadUpdates).length > 0) {
+                    await admin.database().ref().update(unreadUpdates);
+                }
+
             } catch (error) {
-                console.error('❌ Chyba při odesílání FCM:', error);
+                console.error('❌ FCM Error:', error);
             }
-        }
-
-        // --- NEW: Update unread status in RTDB ---
-        const unreadUpdates = {};
-        const unreadPath = `unread`;
-
-        if (channelId === 'general') {
-            workerList.forEach(w => {
-                if (w.id !== message.senderId) {
-                    unreadUpdates[`${unreadPath}/${w.id}/${channelId}`] = {
-                        text: message.text,
-                        timestamp: message.timestamp,
-                        senderName: message.senderName
-                    };
-                }
-            });
-        } else if (channelId.startsWith('project_')) {
-            const projectId = parseInt(channelId.replace('project_', ''));
-            const projectSnap = await admin.database().ref(`/projects/${projectId}`).once('value');
-            const project = projectSnap.val();
-            const memberIds = project?.workerIds || [];
-
-            memberIds.forEach(uid => {
-                if (uid !== message.senderId) {
-                    unreadUpdates[`${unreadPath}/${uid}/${channelId}`] = {
-                        text: message.text,
-                        timestamp: message.timestamp,
-                        senderName: message.senderName
-                    };
-                }
-            });
-        } else if (channelId.startsWith('dm_')) {
-            const parts = channelId.split('_');
-            const targetId = parseInt(parts[1]) === message.senderId ? parseInt(parts[2]) : parseInt(parts[1]);
-            unreadUpdates[`${unreadPath}/${targetId}/${channelId}`] = {
-                text: message.text,
-                timestamp: message.timestamp,
-                senderName: message.senderName
-            };
-        }
-
-        if (Object.keys(unreadUpdates).length > 0) {
-            await admin.database().ref().update(unreadUpdates);
         }
 
         return null;
     });
 
 /**
- * Notifikace při nahlášení závady na stole
+ * Cleanup function for old typing statuses (RTDB)
  */
-exports.sendDefectNotification = functions.database.ref('/fieldTables/{tableKey}')
-    .onUpdate(async (change, context) => {
-        const after = change.after.val();
-        const before = change.before.val();
+exports.cleanupTyping = functions.pubsub.schedule('every 5 minutes').onRun(async (context) => {
+    const cutoff = Date.now() - (5 * 60 * 1000); // 5 min
+    const chatRef = admin.database().ref('chat');
+    const snapshot = await chatRef.once('value');
+    const channels = snapshot.val();
 
-        if (after.status === 'defect' && before.status !== 'defect') {
-            const payload = {
-                notification: {
-                    title: `⚠️ Závada: Projekt ${after.projectId}`,
-                    body: `Stůl ${after.tableId} vyžaduje pozornost!`,
-                    icon: '/icon-192.svg'
+    if (!channels) return null;
+
+    for (const channelId in channels) {
+        if (channels[channelId].typing) {
+            const typing = channels[channelId].typing;
+            for (const userId in typing) {
+                if (typing[userId].timestamp < cutoff) {
+                    await chatRef.child(`${channelId}/typing/${userId}`).remove();
                 }
-            };
-
-            const workersSnap = await admin.database().ref('/workers').once('value');
-            const workers = workersSnap.val();
-            if (!workers) return null;
-
-            const tokens = Object.values(workers)
-                .filter(w => w.fcmToken) // V ideálním světě jen adminům
-                .map(w => w.fcmToken);
-
-            if (tokens.length > 0) {
-                const messages = tokens.map(token => ({ token: token, notification: payload.notification }));
-                await admin.messaging().sendEach(messages);
             }
         }
-        return null;
-    });
+    }
+    return null;
+});

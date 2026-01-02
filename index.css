@@ -178,8 +178,11 @@ textarea {
 }
 
 @media (max-width: 480px) {
-  .ios-card {
-    border-radius: 14px;
-    @apply w-full;
-  }
+  border-radius: 14px;
+  @apply w-full;
+}
+}
+
+.capitalize-name {
+  text-transform: capitalize;
 }

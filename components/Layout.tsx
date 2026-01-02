@@ -8,6 +8,7 @@ import ProjectsIcon from './icons/ProjectsIcon';
 import SettingsIcon from './icons/SettingsIcon';
 import ClockIcon from './icons/ClockIcon';
 import ChatIcon from './icons/ChatIcon';
+import CalendarIcon from './icons/CalendarIcon';
 import ConnectionStatusIndicator from './ConnectionStatusIndicator';
 import Sidebar from './Sidebar';
 import TimeRecordForm from './TimeRecordForm';
@@ -20,11 +21,11 @@ const BottomNavBar: React.FC = () => {
     const location = useLocation();
 
     const navItems = [
-        { to: "/", title: t('dashboard'), icon: <DashboardIcon />, roles: ['admin', 'user'] },
-        { to: "/projects", title: 'Seznam', icon: <ProjectsIcon />, roles: ['admin', 'user'] },
-        { to: "/chat", title: "Chat", icon: <ChatIcon />, roles: ['admin', 'user'] },
-        { to: "/records", title: 'Práce', icon: <ClockIcon />, roles: ['admin', 'user'] },
-        { to: "/settings", title: t('settings'), icon: <SettingsIcon />, roles: ['admin', 'user'] },
+        { to: "/", icon: <DashboardIcon className="w-5 h-5" />, title: t('home'), roles: ['admin', 'user'] },
+        { to: "/projects", icon: <ProjectsIcon className="w-5 h-5" />, title: 'Projekty', roles: ['admin', 'user'] },
+        { to: "/records", icon: <ClockIcon className="w-5 h-5" />, title: t('records'), roles: ['admin', 'user'] },
+        { to: "/attendance", icon: <CalendarIcon className="w-5 h-5" />, title: 'Docházka', roles: ['admin', 'user'] }, // Assuming CalendarIcon needs import check
+        { to: "/chat", icon: <ChatIcon className="w-5 h-5" />, title: t('chat'), roles: ['admin', 'user'] },
     ];
 
     const visibleItems = navItems.filter(item => item.roles.includes(user?.role || 'user'));

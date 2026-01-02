@@ -50,12 +50,13 @@ const Sidebar: React.FC<{ className?: string; onClose?: () => void }> = ({ class
 
     const navItems = [
         { to: "/", title: t('dashboard'), icon: <DashboardIcon />, roles: ['admin', 'user'] },
-        { to: "/projects", title: 'Seznam projektů', icon: <ProjectsIcon />, roles: ['admin', 'user'] },
+        { to: "/projects", title: 'Projekty', icon: <ProjectsIcon />, roles: ['admin', 'user'] },
         { to: "/workers", title: t('workers'), icon: <WorkersIcon />, roles: ['admin'] },
         { to: "/records", title: 'Práce', icon: <ClockIcon />, roles: ['admin', 'user'] },
+        { to: "/attendance", title: 'Docházka', icon: <CalendarIcon />, roles: ['admin', 'user'] },
         { to: "/reports", title: t('reports'), icon: <DocumentTextIcon />, roles: ['admin'] },
         { to: "/stats", title: 'Statistiky', icon: <ChartBarIcon />, roles: ['admin'] },
-        { to: "/field-plans", title: 'Projekty', icon: <CalendarIcon />, roles: ['admin', 'user'] },
+        { to: "/field-plans", title: 'Plán pole', icon: <BrainIcon />, roles: ['admin', 'user'] }, // Swapped icon to differentiate
         { to: "/chat", title: "Firemní chat", icon: <ChatIcon />, roles: ['admin', 'user'] },
         { to: "/tools", title: 'Nářadí', icon: <WrenchIcon />, roles: ['admin'] },
     ];

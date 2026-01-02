@@ -420,7 +420,7 @@ const TimeRecordForm: React.FC<WorkLogFormProps> = ({ onClose, editRecord, initi
             >
 
                 <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02] pt-[calc(1.5rem+var(--safe-top))] md:pt-6">
-                    <h2 className="text-xl font-black text-white uppercase italic tracking-tight">Rychlý zápis práce</h2>
+                    <h2 className="text-xl font-black text-white uppercase italic tracking-tight">Zápis práce</h2>
                     <button
                         onClick={() => { soundService.playClick(); onClose(); }}
                         className="p-4 -mr-4 text-slate-400 hover:text-white transition-colors active:scale-90"

@@ -304,7 +304,7 @@ const ProjectTasksModal: React.FC<ProjectTasksModalProps> = ({ project, onClose 
                                     className={`flex-shrink-0 min-w-[160px] p-4 rounded-2xl border transition-all ${workerFilter === wp.id ? 'bg-indigo-600/30 border-indigo-500/50 shadow-lg scale-105' : 'bg-white/5 border-white/5 hover:border-white/20'}`}
                                 >
                                     <div className="flex justify-between items-center mb-2">
-                                        <span className="text-xs font-black text-white truncate max-w-[80px]">{wp.name}</span>
+                                        <span className="text-xs font-black text-white truncate max-w-[80px] capitalize-name">{wp.name.toLowerCase()}</span>
                                         <span className="text-[10px] font-mono font-bold text-indigo-300">{wp.completed}/{wp.total}</span>
                                     </div>
                                     <div className="h-1.5 w-full bg-black/40 rounded-full overflow-hidden">
@@ -360,7 +360,7 @@ const ProjectTasksModal: React.FC<ProjectTasksModalProps> = ({ project, onClose 
                                                     className="flex items-center gap-1.5 px-2.5 py-1 bg-indigo-500/10 text-indigo-300 rounded-full border border-indigo-500/20 cursor-pointer hover:bg-indigo-500/20 transition-all active:scale-95"
                                                 >
                                                     <div className="w-1 h-1 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.5)]"></div>
-                                                    <span className="text-[9px] font-black uppercase tracking-wider">{workerMap.get(task.assignedWorkerId)}</span>
+                                                    <span className="text-[9px] font-black uppercase tracking-wider capitalize-name">{workerMap.get(task.assignedWorkerId)?.toLowerCase()}</span>
                                                 </div>
                                             )}
                                         </div>

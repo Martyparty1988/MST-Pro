@@ -222,10 +222,10 @@ const Dashboard: React.FC = () => {
           <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.4em] px-2">{t('quick_actions')}</h3>
           <div className="grid grid-cols-2 lg:grid-cols-1 gap-3">
             {[
-              { to: '/field-plans', icon: <MapIcon />, label: t('plan'), color: 'indigo' },
+              { to: '/field-plans', icon: <MapIcon />, label: 'Plán pole', color: 'indigo' },
               { to: '/attendance', icon: <CalendarIcon />, label: t('attendance'), color: 'amber' },
               { to: '/stats', icon: <ChartBarIcon />, label: 'Stats', color: 'blue' },
-              { to: '/projects', icon: <ProjectsIcon />, label: t('projects'), color: 'emerald' }
+              { to: '/projects', icon: <ProjectsIcon />, label: 'Projekty', color: 'emerald' }
             ].map((link, i) => (
               <button key={i} onClick={() => navigate(link.to)} className="flex items-center gap-3 p-4 ios-card hover:border-indigo-500/30 transition-all text-left group">
                 <div className={`p-2 rounded-lg bg-${link.color}-500/10 text-${link.color}-400 group-hover:bg-${link.color}-500 group-hover:text-white transition-all shrink-0`}>

@@ -189,63 +189,78 @@ const ToolManager: React.FC = () => {
     };
 
     return (
-        <div className="space-y-6 pb-20 animate-fade-in text-white">
-            <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="flex items-center gap-4">
-                    <BackButton />
-                    <div>
-                        <h1 className="text-3xl font-black italic uppercase tracking-tighter leading-none">{t('tools')}</h1>
-                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">{t('tools_desc')}</p>
+        <div className="space-y-8 pb-24 animate-fade-in text-white max-w-7xl mx-auto px-4">
+            <div className="md:hidden pt-4 pl-2">
+                <BackButton />
+            </div>
+
+            <header className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-8">
+                <div className="space-y-4 max-w-2xl">
+                    <div className="space-y-2">
+                        <h1 className="text-6xl md:text-8xl font-black text-white italic uppercase tracking-tighter leading-[0.8]">
+                            {t('tools')}<span className="text-indigo-500">.</span>
+                        </h1>
+                        <div className="h-2 w-32 bg-indigo-600 rounded-full shadow-[0_4px_20px_rgba(79,70,229,0.5)]" />
                     </div>
                 </div>
-                <button
-                    onClick={() => { resetForm(); setIsAddModalOpen(true); }}
-                    className="w-full md:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-indigo-600/20 uppercase text-xs tracking-widest flex items-center justify-center gap-2 active:scale-95"
-                >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-                    {t('add_tool')}
-                </button>
+
+                <div className="w-full xl:w-auto flex flex-col md:flex-row gap-4">
+                    <button
+                        onClick={() => { resetForm(); setIsAddModalOpen(true); }}
+                        className="group relative px-8 py-5 bg-white text-black font-black uppercase tracking-[0.2em] text-[10px] rounded-[2rem] hover:scale-105 transition-all duration-300 shadow-xl active:scale-95 overflow-hidden"
+                    >
+                        <div className="relative z-10 flex items-center justify-center gap-3">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+                            {t('add_tool')}
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
+                            <div className="w-full h-full bg-white opacity-20 mix-blend-overlay"></div>
+                        </div>
+                    </button>
+                </div>
             </header>
 
             {/* Tabs & Filters */}
-            <div className="flex flex-col md:flex-row gap-4 justify-between bg-black/20 p-4 rounded-[2.5rem] border border-white/5">
-                <div className="flex p-1 bg-black/40 rounded-2xl">
+            <div className="ios-card p-4 flex flex-col xl:flex-row gap-4 justify-between items-center relative overflow-hidden">
+                <div className="absolute -top-24 -left-24 w-64 h-64 bg-indigo-500/5 blur-[80px] rounded-full pointer-events-none" />
+
+                <div className="flex p-1 bg-black/20 rounded-2xl w-full xl:w-auto relative z-10">
                     <button
                         onClick={() => setActiveCategory('asset')}
-                        className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeCategory === 'asset' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-500 hover:text-white'}`}
+                        className={`flex-1 xl:flex-none px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeCategory === 'asset' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:text-white'}`}
                     >
                         {t('tool_category_asset')}
                     </button>
                     <button
                         onClick={() => setActiveCategory('consumable')}
-                        className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeCategory === 'consumable' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'text-slate-500 hover:text-white'}`}
+                        className={`flex-1 xl:flex-none px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeCategory === 'consumable' ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-500 hover:text-white'}`}
                     >
                         {t('tool_category_consumable')}
                     </button>
                 </div>
 
-                <div className="flex flex-wrap gap-2 items-center">
-                    <div className="relative group flex-1 md:w-64">
+                <div className="flex flex-col md:flex-row gap-3 w-full xl:w-auto relative z-10">
+                    <div className="relative group flex-1">
                         <input
                             type="text"
                             placeholder={t('search')}
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2.5 bg-black/40 rounded-2xl border border-white/5 focus:border-indigo-500 outline-none text-xs font-bold transition-all"
+                            className="w-full pl-12 pr-4 py-3 bg-black/20 rounded-2xl border border-white/5 focus:border-indigo-500/50 outline-none text-xs font-bold transition-all placeholder:text-slate-600 text-white"
                         />
-                        <svg className="absolute left-3 top-2.5 w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-600 group-focus-within:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     </div>
 
                     <select
                         value={filterStatus}
                         onChange={e => setFilterStatus(e.target.value as any)}
-                        className="px-4 py-2.5 bg-black/40 rounded-2xl border border-white/5 text-[10px] font-black uppercase outline-none focus:border-indigo-500"
+                        className="px-6 py-3 bg-black/20 rounded-2xl border border-white/5 text-[10px] font-black uppercase outline-none focus:border-indigo-500/50 text-slate-300 [&>option]:bg-[#020617]"
                     >
                         <option value="all">{t('all_statuses')}</option>
                         <option value="available">{t('tool_status_available')}</option>
                         <option value="borrowed">{t('tool_status_borrowed')}</option>
                         <option value="broken">{t('tool_status_broken')}</option>
-                        <option value="service">{t('tool_status_service')}</option>
                     </select>
                 </div>
             </div>
@@ -253,84 +268,98 @@ const ToolManager: React.FC = () => {
             {/* Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredTools?.map(tool => (
-                    <div key={tool.id} className="group relative bg-[#0f111a] border border-white/5 rounded-[2.5rem] overflow-hidden hover:border-indigo-500/30 transition-all hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
-                        {/* Condition Indicator */}
-                        <div className="absolute top-0 left-0 right-0 h-1 flex gap-0.5">
+                    <div key={tool.id} className="group ios-card relative overflow-hidden flex flex-col h-full hover:scale-[1.02] transition-transform duration-300 active:scale-95">
+                        {/* Condition Bar */}
+                        <div className="absolute top-0 left-0 right-0 h-1 flex gap-0.5 opacity-50">
                             {[1, 2, 3, 4, 5].map(i => (
-                                <div key={i} className={`flex-1 h-full ${i <= (6 - (tool.condition || 1)) ? 'bg-indigo-500/40' : 'bg-transparent'}`} />
+                                <div key={i} className={`flex-1 h-full ${i <= (6 - (tool.condition || 1)) ? 'bg-indigo-500' : 'bg-transparent'}`} />
                             ))}
                         </div>
 
-                        <div className="p-8 space-y-4">
+                        <div className="p-6 flex-1 flex flex-col gap-6">
                             <div className="flex justify-between items-start">
-                                <div className="w-14 h-14 bg-white/5 rounded-3xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
+                                <div className="w-16 h-16 bg-white/[0.03] border border-white/5 rounded-2xl flex items-center justify-center text-4xl shadow-inner relative overflow-hidden group-hover:bg-white/[0.07] transition-colors">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                     {getToolIcon(tool.type)}
                                 </div>
-                                <div className="flex flex-col items-end gap-2">
-                                    {tool.category === 'asset' ? (
-                                        <span className={`px-3 py-1 rounded-xl text-[8px] font-black uppercase tracking-widest ${tool.status === 'available' ? 'bg-emerald-500/20 text-emerald-400' :
-                                            tool.status === 'borrowed' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-rose-500/20 text-rose-400'
-                                            }`}>
-                                            {t(`tool_status_${tool.status}` as any)}
-                                        </span>
-                                    ) : (
-                                        <span className={`px-3 py-1 rounded-xl text-[8px] font-black uppercase tracking-widest ${(tool.quantity || 0) < 5 ? 'bg-rose-500 text-white animate-pulse' : 'bg-black/40 text-slate-400'
-                                            }`}>
-                                            {(tool.quantity || 0) < 5 ? t('low_stock') : t('tool_status_available')}
-                                        </span>
+
+                                {tool.category === 'asset' ? (
+                                    <span className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${tool.status === 'available' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                                        tool.status === 'borrowed' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                                        }`}>
+                                        {t(`tool_status_${tool.status}` as any)}
+                                    </span>
+                                ) : (
+                                    <span className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${(tool.quantity || 0) < 5 ? 'bg-rose-500/10 text-rose-400 border-rose-500/20 animate-pulse' : 'bg-slate-500/10 text-slate-400 border-slate-500/20'
+                                        }`}>
+                                        {(tool.quantity || 0) < 5 ? t('low_stock') : `${tool.quantity} ${tool.unit}`}
+                                    </span>
+                                )}
+                            </div>
+
+                            <div className="space-y-1">
+                                <h3 className="text-xl font-black italic tracking-tight text-white line-clamp-2 leading-tight min-h-[3rem]">{tool.name}</h3>
+                                <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                                    <span className="truncate max-w-[50%]">{tool.type}</span>
+                                    {tool.brand && (
+                                        <>
+                                            <span className="w-1 h-1 bg-slate-700 rounded-full" />
+                                            <span className="truncate max-w-[50%]">{tool.brand}</span>
+                                        </>
                                     )}
                                 </div>
                             </div>
 
-                            <div>
-                                <h3 className="text-xl font-black italic uppercase tracking-tighter truncate">{tool.name}</h3>
-                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest truncate">{tool.type} • {tool.brand || 'No brand'}</p>
-                            </div>
-
-                            {tool.category === 'asset' && tool.status === 'borrowed' && tool.assignedWorkerId ? (
-                                <div className="p-4 bg-indigo-500/5 rounded-2xl border border-indigo-500/10 flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-[10px] font-black">
+                            {tool.category === 'asset' && tool.status === 'borrowed' && tool.assignedWorkerId && (
+                                <div className="mt-auto p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20 flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-[10px] font-black text-white shadow-lg">
                                         {getWorkerName(tool.assignedWorkerId).substring(0, 2).toUpperCase()}
                                     </div>
                                     <div className="min-w-0">
-                                        <p className="text-[8px] font-black text-slate-500 uppercase">{t('has_borrowed')}</p>
-                                        <p className="text-xs font-black truncate">{getWorkerName(tool.assignedWorkerId)}</p>
+                                        <p className="text-[8px] font-black text-indigo-300/60 uppercase tracking-wider">{t('has_borrowed')}</p>
+                                        <p className="text-xs font-bold text-indigo-100 truncate">{getWorkerName(tool.assignedWorkerId)}</p>
                                     </div>
-                                </div>
-                            ) : tool.category === 'consumable' ? (
-                                <div className="p-4 bg-emerald-500/5 rounded-2xl border border-emerald-500/10 flex justify-between items-center">
-                                    <div className="text-left font-black">
-                                        <p className="text-[8px] text-slate-500 uppercase">{t('tool_quantity')}</p>
-                                        <p className="text-xl italic text-emerald-400">{tool.quantity} <span className="text-[10px] not-italic text-slate-500">{tool.unit}</span></p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-[8px] text-slate-500 uppercase">{t('tool_location')}</p>
-                                        <p className="text-[10px] uppercase font-black text-white">{tool.location || '?'}</p>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="p-3 bg-black/20 rounded-2xl flex justify-between items-center">
-                                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest ">S/N: {tool.serialNumber || '---'}</span>
-                                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest ">Loc: {tool.location || '?'}</span>
                                 </div>
                             )}
 
-                            <div className="flex gap-2 pt-2">
-                                <button onClick={() => handleEdit(tool)} className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all">{t('edit')}</button>
-                                <button onClick={() => setViewingHistoryToolId(tool.id!)} className="p-3 bg-white/5 hover:bg-white/10 rounded-xl">
-                                    <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            {tool.category === 'consumable' && (
+                                <div className="mt-auto flex items-center gap-2 text-xs text-slate-400 font-medium bg-black/20 p-3 rounded-xl border border-white/5">
+                                    <svg className="w-4 h-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                    <span className="truncate">{tool.location || 'Neznámá lokace'}</span>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="p-4 pt-0 grid grid-cols-4 gap-2">
+                            <button
+                                onClick={(e) => { e.stopPropagation(); handleEdit(tool); }}
+                                className="col-span-2 py-3 bg-white/5 hover:bg-white/10 hover:text-white text-slate-400 rounded-xl transition-all flex items-center justify-center group/btn"
+                            >
+                                <svg className="w-5 h-5 group-hover/btn:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                            </button>
+
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setViewingHistoryToolId(tool.id!); }}
+                                className="col-span-1 py-3 bg-white/5 hover:bg-white/10 hover:text-white text-slate-400 rounded-xl transition-all flex items-center justify-center group/btn"
+                            >
+                                <svg className="w-5 h-5 group-hover/btn:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </button>
+
+                            {tool.category === 'asset' && tool.status === 'borrowed' ? (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); handleQuickReturn(tool); }}
+                                    className="col-span-1 py-3 bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white rounded-xl transition-all flex items-center justify-center shadow-lg shadow-emerald-900/20 group/btn"
+                                >
+                                    <svg className="w-5 h-5 group-hover/btn:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
                                 </button>
-                                {tool.category === 'asset' && tool.status === 'borrowed' && (
-                                    <button onClick={() => handleQuickReturn(tool)} className="px-4 py-3 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all">
-                                        {t('quick_return')}
-                                    </button>
-                                )}
-                                {tool.status !== 'borrowed' && (
-                                    <button onClick={() => handleDelete(tool.id!, tool.name)} className="p-3 bg-rose-500/5 hover:bg-rose-500 text-rose-500 hover:text-white rounded-xl transition-all">
-                                        <TrashIcon className="w-4 h-4" />
-                                    </button>
-                                )}
-                            </div>
+                            ) : (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); handleDelete(tool.id!, tool.name); }}
+                                    className="col-span-1 py-3 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-xl transition-all flex items-center justify-center group/btn"
+                                >
+                                    <TrashIcon className="w-5 h-5 group-hover/btn:scale-110 transition-transform" />
+                                </button>
+                            )}
                         </div>
                     </div>
                 ))}

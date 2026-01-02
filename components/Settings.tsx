@@ -24,11 +24,7 @@ const Settings: React.FC = () => {
     const { createBackup, importBackup } = useBackup();
     const { showToast } = useToast();
     const [isResetting, setIsResetting] = useState(false);
-    
-    // ✅ OPRAVA: Bezpečná kontrola Notification API
-    const notificationPermission = typeof Notification !== 'undefined' ? notificationPermission : 'denied';
 
-    // ✅ OPRAVA: Bezpečná kontrola Notification API
     const notificationPermission = typeof Notification !== 'undefined' ? Notification.permission : 'denied';
 
     const handleClearAll = async () => {
@@ -37,21 +33,6 @@ const Settings: React.FC = () => {
         });
         window.location.reload();
     };
-
-    const SettingsSection: React.FC<{ title: string; children: React.ReactNode; defaultOpen?: boolean }> = ({ title, children, defaultOpen = false }) => (
-        <details className="group p-8 bg-[#0a0c1a]/60 backdrop-blur-3xl rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden transition-all" open={defaultOpen}>
-            <summary className="text-2xl font-black text-white italic uppercase tracking-tighter cursor-pointer list-none flex items-center justify-between outline-none">
-                <span className="flex items-center gap-4">
-                    <div className="w-1.5 h-8 bg-indigo-500 rounded-full" />
-                    {title}
-                </span>
-                <svg className="w-8 h-8 transform group-open:rotate-180 transition-transform duration-500 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7" /></svg>
-            </summary>
-            <div className="mt-10 animate-fade-in px-2">
-                {children}
-            </div>
-        </details>
-    );
 
     return (
         <div className="pb-24 max-w-lg mx-auto px-4 md:px-0 space-y-8">
@@ -86,7 +67,6 @@ const Settings: React.FC = () => {
                 </div>
             </section>
 
-<<<<<<< HEAD
             {/* Notifications Section */}
             <section className="space-y-3">
                 <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] pl-4 mb-2">Notifikace</h2>
@@ -95,34 +75,6 @@ const Settings: React.FC = () => {
                         <div className="space-y-1">
                             <h3 className="text-white font-bold text-lg">Push Oznámení</h3>
                             <p className="text-xs text-slate-400 font-medium">Upozornění na nové zprávy a úkoly</p>
-=======
-                {/* Notifications Section */}
-                <SettingsSection title="Oznámení" defaultOpen>
-                    <div className="bg-black/40 p-10 rounded-[2.5rem] border border-white/5 space-y-10">
-                        <div className="flex items-center justify-between flex-wrap gap-6">
-                            <div className="space-y-2">
-                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Aktuální stav</p>
-                                <h3 className={`text-2xl font-black italic tracking-tighter uppercase ${notificationPermission === 'granted' ? 'text-emerald-500' : 'text-slate-400'}`}>
-                                    {notificationPermission === 'granted' ? 'Aktivní' : notificationPermission === 'denied' ? 'Zakázáno' : 'Čeká se'}
-                                </h3>
-                            </div>
-
-                            <button
-                                onClick={async () => {
-                                    const token = await firebaseService.requestNotificationPermission(user?.workerId);
-                                    if (token) {
-                                        showToast('Oznámení povolena!', 'success');
-                                        new Notification("MST System", { body: "Oznámení byla úspěšně aktivována." });
-                                    } else {
-                                        showToast('Povolte oznámení v prohlížeči', 'error');
-                                    }
-                                }}
-                                className="group relative px-10 py-5 bg-white text-black font-black rounded-[2rem] hover:scale-105 transition-all active:scale-95 shadow-2xl flex items-center gap-4"
-                            >
-                                <span className="uppercase tracking-widest text-xs">Povolit & Testovat</span>
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-                            </button>
->>>>>>> fb4ed3b768e28cd16a0f0376836d30675ef91209
                         </div>
                         <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${notificationPermission === 'granted'
                             ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'

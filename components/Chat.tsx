@@ -20,17 +20,17 @@ const notifyUser = (message: ChatMessage, showToast: (msg: string, type?: any) =
         (navigator as any).setAppBadge().catch(() => { });
     }
 
-    if (typeof Notification !== 'undefined' && Notification.permission === 'granted' && document.hidden) {
-        try {
-            new Notification(`${message.senderName}`, {
-                body: message.text,
-                icon: '/icon-192.svg',
-                tag: 'chat-msg'
-            } as any);
-        } catch (e) {
-            console.warn('Failed to show notification', e);
-        }
-    }
+    // if (typeof Notification !== 'undefined' && Notification.permission === 'granted' && document.hidden) {
+    //     try {
+    //         new Notification(`${message.senderName}`, {
+    //             body: message.text,
+    //             icon: '/icon-192.svg',
+    //             tag: 'chat-msg'
+    //         } as any);
+    //     } catch (e) {
+    //         console.warn('Failed to show notification', e);
+    //     }
+    // }
 };
 
 const Chat: React.FC = () => {

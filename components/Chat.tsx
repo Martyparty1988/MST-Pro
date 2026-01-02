@@ -193,13 +193,16 @@ const Chat: React.FC = () => {
         if (!inputText.trim()) return;
         setIsSending(true);
 
-        const newMessage: Omit<ChatMessage, 'id' | 'timestamp'> = {
+        const newMessage: any = {
             text: inputText.trim(),
             senderId: currentUser?.workerId || -1,
             senderName: currentUser?.username || 'Admin',
-            channelId: activeChannelId,
-            replyTo: replyToMessage?.id
+            channelId: activeChannelId
         };
+
+        if (replyToMessage?.id) {
+            newMessage.replyTo = replyToMessage.id;
+        }
 
         try {
             await firebaseService.sendMessageFirestore(activeChannelId, newMessage);
@@ -211,8 +214,9 @@ const Chat: React.FC = () => {
             setInputText('');
             setReplyToMessage(null);
             soundService.playClick();
-        } catch (error) {
-            showToast("Chyba při odesílání", "error");
+        } catch (error: any) {
+            console.error("Send Error:", error);
+            showToast(`Chyba: ${error.message || 'Nepodařilo se odeslat'}`, "error");
         } finally {
             setIsSending(false);
         }

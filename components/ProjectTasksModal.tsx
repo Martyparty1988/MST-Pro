@@ -247,8 +247,14 @@ const ProjectTasksModal: React.FC<ProjectTasksModalProps> = ({ project, onClose 
     ];
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center bg-slate-950/40 backdrop-blur-md p-0 md:p-6 animate-fade-in">
-            <div className="w-full h-[92vh] md:h-auto md:max-h-[90vh] md:max-w-5xl bg-slate-900/90 md:bg-slate-900/80 backdrop-blur-3xl rounded-t-[2.5rem] md:rounded-[2.5rem] shadow-2xl border-t border-white/10 md:border border-white/5 flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)]">
+        <div
+            className="fixed inset-0 z-[60] flex items-end md:items-center justify-center bg-slate-950/40 backdrop-blur-md p-0 md:p-6 animate-fade-in"
+            onClick={onClose}
+        >
+            <div
+                className="w-full h-[92vh] md:h-auto md:max-h-[90vh] md:max-w-5xl bg-slate-900/90 md:bg-slate-900/80 backdrop-blur-3xl rounded-t-[2.5rem] md:rounded-[2.5rem] shadow-2xl border-t border-white/10 md:border border-white/5 flex flex-col overflow-hidden pb-safe"
+                onClick={e => e.stopPropagation()}
+            >
                 <div className="flex-shrink-0 p-6 md:p-8 pb-4">
                     <div className="flex justify-between items-start mb-6">
                         <div className="space-y-1">

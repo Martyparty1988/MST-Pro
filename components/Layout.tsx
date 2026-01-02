@@ -12,11 +12,12 @@ import ConnectionStatusIndicator from './ConnectionStatusIndicator';
 import Sidebar from './Sidebar';
 import TimeRecordForm from './TimeRecordForm';
 import NotificationBell from './NotificationBell';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 const BottomNavBar: React.FC = () => {
     const { t } = useI18n();
     const { user } = useAuth();
+    const location = useLocation();
 
     const navItems = [
         { to: "/", title: t('dashboard'), icon: <DashboardIcon />, roles: ['admin', 'user'] },
@@ -30,10 +31,10 @@ const BottomNavBar: React.FC = () => {
 
     return (
         <nav
-            className="fixed bottom-0 left-0 z-[100] w-full bg-[#020617]/80 backdrop-blur-2xl border-t border-white/5 md:hidden"
-            style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+            className="fixed bottom-0 left-0 z-[100] w-full bg-[#020617]/80 backdrop-blur-2xl border-t border-white/5 md:hidden pb-safe"
+            style={{ height: 'var(--nav-height)' }}
         >
-            <div className="flex justify-around items-center h-[--nav-height] px-2">
+            <div className="flex justify-around items-center h-full pb-[var(--safe-bottom)] px-2">
                 {visibleItems.map(item => (
                     <NavLink
                         key={item.to}
@@ -59,9 +60,23 @@ const BottomNavBar: React.FC = () => {
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const location = useLocation();
-    const isChat = location.pathname === '/chat';
     const [showQuickLog, setShowQuickLog] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    // Context-Aware FAB Visibility
+    // Only show on specific main pages, hide on chat, forms, or deeper details if needed
+    const showFab = useMemo(() => {
+        const path = location.pathname;
+        const allowedPaths = ['/', '/projects', '/records', '/attendance'];
+        const isAllowed = allowedPaths.includes(path) || path.startsWith('/projects/'); // Maybe allow on project details? User said "Forms" are updating.
+
+        // Strict exclusions requested by User Audit
+        if (path.includes('/chat')) return false;
+        if (path.includes('/settings')) return false; // Settings is a form-heavy page
+        if (path.includes('/edit')) return false; // Any edit form
+
+        return true;
+    }, [location.pathname]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -95,9 +110,12 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </div>
 
             <div className="flex-1 flex flex-col overflow-hidden md:ml-64 relative h-full">
-                {/* Header - Only for Mobile */}
-                <header className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#020617]/80 backdrop-blur-2xl border-b border-white/5 pt-safe">
-                    <div className="flex justify-between items-center h-[--header-height] px-4">
+                {/* Header - Only for Mobile - FIXED SAFE AREA */}
+                <header
+                    className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#020617]/80 backdrop-blur-2xl border-b border-white/5 pt-safe flex items-end"
+                    style={{ height: 'var(--header-height)' }}
+                >
+                    <div className="flex justify-between items-center w-full h-[var(--header-height-base)] px-4 pb-2">
                         <div className="flex items-center gap-3">
                             <button
                                 onClick={() => setIsSidebarOpen(true)}
@@ -115,25 +133,25 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 </header>
 
                 <main
-                    className={`flex-1 ${isChat ? 'overflow-hidden flex flex-col' : 'overflow-y-auto custom-scrollbar overscroll-contain'}`}
+                    className={`flex-1 ${location.pathname === '/chat' ? 'overflow-hidden flex flex-col' : 'overflow-y-auto custom-scrollbar overscroll-contain'}`}
                     style={{
-                        paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))',
-                        paddingBottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))',
+                        paddingTop: 'var(--header-height)',
+                        paddingBottom: 'var(--nav-height)',
                     }}
                 >
-                    <div key={location.pathname} className={`max-w-7xl mx-auto w-full animate-fade-in ${isChat ? 'h-full flex flex-col px-0' : 'px-4 py-4 md:py-8'}`}>
+                    <div key={location.pathname} className={`max-w-7xl mx-auto w-full animate-fade-in ${location.pathname === '/chat' ? 'h-full flex flex-col px-0' : 'px-4 py-4 md:py-8'}`}>
                         {children}
                     </div>
                 </main>
 
                 <BottomNavBar />
 
-                {/* FAB - Adjusted for safe areas - HIDDEN ON CHAT to prevent overlap */}
-                {!isChat && (
+                {/* FAB - Context Aware */}
+                {showFab && (
                     <div
-                        className="fixed z-40 md:bottom-10 md:right-10"
+                        className="fixed z-40 md:bottom-10 md:right-10 animate-fade-in"
                         style={{
-                            bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px) + 12px)',
+                            bottom: 'calc(var(--nav-height) + 12px)',
                             right: 'max(16px, env(safe-area-inset-right, 16px))'
                         }}
                     >

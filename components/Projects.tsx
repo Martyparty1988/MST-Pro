@@ -93,20 +93,20 @@ const Projects: React.FC = () => {
                 </div>
             </div>
 
-            <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pt-2">
-                <div className="space-y-3">
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 md:gap-6 pt-2">
+                <div className="space-y-2">
                     <div className="flex items-center gap-2">
                         <span className="h-0.5 w-6 bg-indigo-500 rounded-full"></span>
                         <span className="text-[9px] font-black text-indigo-400 uppercase tracking-[0.4em]">{t('projects')}</span>
                     </div>
-                    <h1 className="text-4xl md:text-8xl font-black text-white italic tracking-tighter uppercase leading-[0.9]">
+                    <h1 className="text-3xl md:text-6xl font-black text-white italic tracking-tighter uppercase leading-[0.9]">
                         {t('projects')}<span className="text-indigo-500 not-italic">.</span>
                     </h1>
                 </div>
                 {user?.role === 'admin' && (
                     <button
                         onClick={handleAdd}
-                        className="group relative w-full md:w-auto px-8 py-5 bg-white text-black font-black uppercase tracking-widest text-[11px] rounded-2xl active:scale-95 transition-all shadow-xl overflow-hidden"
+                        className="group relative w-full md:w-auto px-6 py-3 md:py-5 bg-white text-black font-black uppercase tracking-widest text-[10px] md:text-[11px] rounded-2xl active:scale-95 transition-all shadow-xl overflow-hidden"
                     >
                         <div className="relative z-10 flex items-center justify-center gap-3">
                             <PlusIcon className="w-5 h-5" />

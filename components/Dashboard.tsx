@@ -138,8 +138,8 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pt-2">
-        <div className="space-y-3">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 md:gap-6 pt-2">
+        <div className="space-y-2">
           <div className="flex items-center gap-2">
             <span className="h-0.5 w-6 bg-indigo-500 rounded-full"></span>
             <span className="text-[9px] font-black text-indigo-400 uppercase tracking-[0.4em]">{t('dashboard')}</span>
@@ -149,7 +149,7 @@ const Dashboard: React.FC = () => {
               <span className="text-[8px] font-black uppercase tracking-widest">{syncStatus.pending > 0 ? `Sync (${syncStatus.pending})` : syncStatus.online ? 'Online' : 'Offline'}</span>
             </div>
           </div>
-          <h1 className="text-4xl md:text-7xl font-black text-white italic tracking-tighter uppercase leading-[0.9]">
+          <h1 className="text-3xl md:text-6xl font-black text-white italic tracking-tighter uppercase leading-[0.9]">
             Vítejte, {user?.username || 'Marty'}<span className="text-indigo-500 font-normal">.</span>
           </h1>
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] opacity-40">Smart Solar Management</p>
@@ -157,11 +157,11 @@ const Dashboard: React.FC = () => {
 
         <button
           onClick={() => setIsLoggingWork(true)}
-          className="group relative w-full md:w-auto px-6 py-4 bg-white rounded-2xl font-black text-black uppercase tracking-widest shadow-xl active:scale-95 transition-all overflow-hidden"
+          className="group relative w-full md:w-auto px-6 py-3 md:py-4 bg-white rounded-2xl font-black text-black uppercase tracking-widest shadow-xl active:scale-95 transition-all overflow-hidden"
         >
           <div className="relative z-10 flex items-center justify-center gap-3">
             <ClockIcon className="w-5 h-5" />
-            <span className="text-[11px]">{t('log_work')}</span>
+            <span className="text-[10px] md:text-[11px]">{t('log_work')}</span>
           </div>
         </button>
       </header>

@@ -10,15 +10,18 @@
   --glass-bg: rgba(15, 23, 42, 0.7);
   --glass-border: rgba(255, 255, 255, 0.08);
 
-  /* Safe Area Variables */
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  /* Safe Area Variables with Fallbacks */
+  --safe-top: env(safe-area-inset-top, 20px);
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
 
-  /* Layout Constants */
-  --header-height: 52px;
-  --nav-height: 68px;
+  /* Precise Layout Constants */
+  --header-height-base: 52px;
+  --header-height: calc(var(--header-height-base) + var(--safe-top));
+  --nav-height-base: 60px;
+  /* Reduced from 68px for simpler look */
+  --nav-height: calc(var(--nav-height-base) + var(--safe-bottom));
 }
 
 /* 
@@ -130,6 +133,7 @@ h1 {
 }
 
 /* Safe Area Utility Classes */
+/* Safe Area Utility Classes */
 .pt-safe {
   padding-top: var(--safe-top);
 }
@@ -138,9 +142,17 @@ h1 {
   padding-bottom: var(--safe-bottom);
 }
 
+.h-header-safe {
+  height: var(--header-height);
+}
+
 .px-safe {
   padding-left: var(--safe-left);
   padding-right: var(--safe-right);
+}
+
+.mb-safe {
+  margin-bottom: var(--safe-bottom);
 }
 
 /* Prevent auto-zoom on inputs in iOS */

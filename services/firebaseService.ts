@@ -420,6 +420,13 @@ class FirebaseService {
 
     // ... other methods from original file (getData, setData, etc.)
 
+    public async uploadFile(file: File, path: string): Promise<string> {
+        const storage = getStorage(this.app);
+        const storageReference = storageRef(storage, path);
+        await uploadBytes(storageReference, file);
+        return await getDownloadURL(storageReference);
+    }
+
 }
 
 export const firebaseService = new FirebaseService();

@@ -8,6 +8,8 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../services/db';
 import type { ChatMessage, Worker, Project } from '../types';
 import { soundService } from '../services/soundService';
+import UploadIcon from './icons/UploadIcon';
+import TrashIcon from './icons/TrashIcon';
 
 const notifyUser = (message: ChatMessage, showToast: (msg: string, type?: any) => void, t: any) => {
     soundService.playMessageReceived();
@@ -20,17 +22,17 @@ const notifyUser = (message: ChatMessage, showToast: (msg: string, type?: any) =
         (navigator as any).setAppBadge().catch(() => { });
     }
 
-    // if (typeof Notification !== 'undefined' && Notification.permission === 'granted' && document.hidden) {
-    //     try {
-    //         new Notification(`${message.senderName}`, {
-    //             body: message.text,
-    //             icon: '/icon-192.svg',
-    //             tag: 'chat-msg'
-    //         } as any);
-    //     } catch (e) {
-    //         console.warn('Failed to show notification', e);
-    //     }
-    // }
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted' && document.hidden) {
+        try {
+            new Notification(`${message.senderName}`, {
+                body: message.text || (message.imageUrl ? '📷 Fotografie' : 'Nová zpráva'),
+                icon: '/icon-192.svg',
+                tag: 'chat-msg'
+            } as any);
+        } catch (e) {
+            console.warn('Failed to show notification', e);
+        }
+    }
 };
 
 const Chat: React.FC = () => {
@@ -45,6 +47,11 @@ const Chat: React.FC = () => {
     const [seenStatus, setSeenStatus] = useState<Record<string, string>>({});
     const [replyToMessage, setReplyToMessage] = useState<ChatMessage | null>(null);
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    // File Upload State
+    const [attachedFile, setAttachedFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Mobile-specific state: 'list' shows channels, 'chat' shows message window
     const [mobileView, setMobileView] = useState<'list' | 'chat'>('list');
@@ -188,23 +195,42 @@ const Chat: React.FC = () => {
         }, 3000);
     };
 
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                showToast('Soubor je příliš velký (max 5MB)', 'error');
+                return;
+            }
+            setAttachedFile(file);
+            setPreviewUrl(URL.createObjectURL(file));
+        }
+    };
+
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!inputText.trim()) return;
+        if (!inputText.trim() && !attachedFile) return;
         setIsSending(true);
 
-        const newMessage: any = {
-            text: inputText.trim(),
-            senderId: currentUser?.workerId || -1,
-            senderName: currentUser?.username || 'Admin',
-            channelId: activeChannelId
-        };
-
-        if (replyToMessage?.id) {
-            newMessage.replyTo = replyToMessage.id;
-        }
-
         try {
+            let imageUrl = undefined;
+            if (attachedFile) {
+                const path = `chat-media/${activeChannelId}/${Date.now()}_${attachedFile.name}`;
+                imageUrl = await firebaseService.uploadFile(attachedFile, path);
+            }
+
+            const newMessage: any = {
+                text: inputText.trim(),
+                senderId: currentUser?.workerId || -1,
+                senderName: currentUser?.username || 'Admin',
+                channelId: activeChannelId,
+                imageUrl: imageUrl
+            };
+
+            if (replyToMessage?.id) {
+                newMessage.replyTo = replyToMessage.id;
+            }
+
             await firebaseService.sendMessageFirestore(activeChannelId, newMessage);
             // Clear typing status immediately on send
             if (currentUser?.workerId) {
@@ -213,6 +239,10 @@ const Chat: React.FC = () => {
             }
             setInputText('');
             setReplyToMessage(null);
+            setAttachedFile(null);
+            setPreviewUrl(null);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+
             soundService.playClick();
         } catch (error: any) {
             console.error("Send Error:", error);
@@ -549,6 +579,14 @@ const Chat: React.FC = () => {
                                                                         </div>
                                                                     )}
                                                                     <div className="selection:bg-white selection:text-indigo-600 break-words overflow-hidden">
+                                                                        {msg.imageUrl && (
+                                                                            <img
+                                                                                src={msg.imageUrl}
+                                                                                alt="Uploaded content"
+                                                                                className="rounded-lg mb-2 max-w-full max-h-64 object-cover border border-black/10 cursor-pointer hover:opacity-90 transition-opacity"
+                                                                                onClick={() => window.open(msg.imageUrl, '_blank')}
+                                                                            />
+                                                                        )}
                                                                         {msg.text}
                                                                     </div>
                                                                     <div className={`text-[9px] font-bold uppercase tracking-[0.15em] opacity-40 block text-right mt-2 pointer-events-none ${senderMe ? 'text-indigo-100' : 'text-slate-400'}`}>
@@ -648,7 +686,47 @@ const Chat: React.FC = () => {
                             </div>
                         )}
 
+                        {/* Image Preview */}
+                        {attachedFile && previewUrl && (
+                            <div className="p-3 bg-indigo-500/10 border-l-4 border-indigo-600 rounded-xl flex justify-between items-center animate-slide-up">
+                                <div className="flex items-center gap-3 overflow-hidden">
+                                    <img src={previewUrl} alt="Preview" className="w-12 h-12 rounded-lg object-cover border border-white/10" />
+                                    <div className="min-w-0">
+                                        <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest truncate">{attachedFile.name}</p>
+                                        <p className="text-xs text-slate-400 italic">{(attachedFile.size / 1024).toFixed(1)} KB</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        setAttachedFile(null);
+                                        setPreviewUrl(null);
+                                        if (fileInputRef.current) fileInputRef.current.value = '';
+                                    }}
+                                    className="p-2 text-slate-500 hover:text-white transition-all"
+                                >
+                                    <TrashIcon className="w-4 h-4" />
+                                </button>
+                            </div>
+                        )}
+
                         <form onSubmit={handleSend} className="flex gap-3 relative group/form">
+                            {/* File Input */}
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileSelect}
+                                accept="image/*"
+                                className="hidden"
+                            />
+
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="w-11 h-[3.2rem] shrink-0 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 flex items-center justify-center text-slate-400 hover:text-indigo-400 transition-all active:scale-95"
+                            >
+                                <UploadIcon className="w-5 h-5" />
+                            </button>
+
                             <div className="flex-1 relative flex items-center">
                                 <input
                                     type="text"

@@ -128,21 +128,23 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
                 <BottomNavBar />
 
-                {/* FAB - Adjusted for safe areas */}
-                <div
-                    className="fixed z-40 md:bottom-10 md:right-10"
-                    style={{
-                        bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px) + 12px)',
-                        right: 'max(16px, env(safe-area-inset-right, 16px))'
-                    }}
-                >
-                    <button
-                        onClick={() => setShowQuickLog(true)}
-                        className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-full shadow-2xl flex items-center justify-center text-white active:scale-90 transition-transform"
+                {/* FAB - Adjusted for safe areas - HIDDEN ON CHAT to prevent overlap */}
+                {!isChat && (
+                    <div
+                        className="fixed z-40 md:bottom-10 md:right-10"
+                        style={{
+                            bottom: 'calc(var(--nav-height) + env(safe-area-inset-bottom, 0px) + 12px)',
+                            right: 'max(16px, env(safe-area-inset-right, 16px))'
+                        }}
                     >
-                        <ClockIcon className="w-7 h-7" />
-                    </button>
-                </div>
+                        <button
+                            onClick={() => setShowQuickLog(true)}
+                            className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-full shadow-2xl flex items-center justify-center text-white active:scale-90 transition-transform"
+                        >
+                            <ClockIcon className="w-7 h-7" />
+                        </button>
+                    </div>
+                )}
             </div>
 
             {showQuickLog && (

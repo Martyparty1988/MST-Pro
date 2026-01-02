@@ -38,7 +38,7 @@ import { getAnalytics, Analytics } from "firebase/analytics";
 const firebaseConfig = {
     apiKey: "AIzaSyD5RkJAXUvuBAbuug9C1cU0PGNUMjbaGc8",
     authDomain: "mst-ap.firebaseapp.com",
-    databaseURL: "https://mst-ap-default-rtdb.europe-west1.firebasedatabase.app",
+    databaseURL: "https://mst-marty-solar-2025-default-rtdb.europe-west1.firebasedatabase.app",
     projectId: "mst-ap",
     storageBucket: "mst-ap.firebasestorage.app",
     messagingSenderId: "708181032604",
